@@ -1,5 +1,6 @@
 package com.juyoung.demospringrestapi.events;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +10,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
+// todo : 10. Event 생성 API 구현 : 201 응답받기
 /*
  * @WebMvcTest
  * - 슬라이싱 테스트
@@ -25,13 +32,33 @@ public class EventControllerTest {
     @Autowired
     private MockMvc mockMvc;    // mocking : 가짜 요청/응답 확인가능 ( 속도 : 웹 구동 < mockMvc < 단위 테스트 )
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Test
     public void createEvent() throws Exception {
-        mockMvc.perform(post("/api/events/")
-                .contentType(MediaType.APPLICATION_JSON_UTF8)   // JSON content을 넘긴다.
-                .accept(MediaTypes.HAL_JSON)                    // HAL : Hypertext Application Language / Accept : response 받기 원하는 요청 설정
-                )   // perform : 요청
-                .andExpect(status().isCreated());    // isCreated  : 201 (   = .andExpect(status().is(201))  )
+        // Given
+        Event event = Event.builder()
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2019,4,2,23,57))
+                .closeEnrollmentDateTime(LocalDateTime.of(2019,4,3,23,57))
+                .beginEventDateTime(LocalDateTime.of(2019,4,4,23,57))
+                .endEventDateTime(LocalDateTime.of(2019,4,5,23,57))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역 D2 startup factory")
+                .build();
 
+        mockMvc.perform(post("/api/events/")            // perform : 요청
+                .contentType(MediaType.APPLICATION_JSON_UTF8)       // JSON content을 넘긴다.
+                .accept(MediaTypes.HAL_JSON)                        // HAL : Hypertext Application Language / Accept : response 받기 원하는 요청 설정
+                .content(objectMapper.writeValueAsString(event)) )  //**  objectMapper.writeValueAsString  : JSON 형식으로 변환
+                .andDo(print())                                     // ** print() : 응답 확인하고 싶을 때
+                .andExpect(status().isCreated())                    // isCreated  : 201 (   = .andExpect(status().is(201))  )
+                .andExpect(jsonPath("id").exists());      // ID가 존재하는지 확인
     }
+
+
 }
