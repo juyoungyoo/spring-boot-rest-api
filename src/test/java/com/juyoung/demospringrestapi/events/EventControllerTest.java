@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,13 +64,15 @@ public class EventControllerTest {
         event.setId(10);
         Mockito.when(eventRepository.save(event)).thenReturn(event);
 
-        mockMvc.perform(post("/api/events/")            // perform : 요청
+        mockMvc.perform(post("/api/events/")             // perform : 요청
                 .contentType(MediaType.APPLICATION_JSON_UTF8)       // JSON content을 넘긴다.
                 .accept(MediaTypes.HAL_JSON)                        // HAL : Hypertext Application Language / Accept : response 받기 원하는 요청 설정
                 .content(objectMapper.writeValueAsString(event)) )  //**  objectMapper.writeValueAsString  : JSON 형식으로 변환
                 .andDo(print())                                     // ** print() : 응답 확인하고 싶을 때
                 .andExpect(status().isCreated())                    // isCreated  : 201 (   = .andExpect(status().is(201))  )
-                .andExpect(jsonPath("id").exists());      // ID가 존재하는지 확인
+                .andExpect(jsonPath("id").exists())       // ID가 존재하는지 확인
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/hal+json;charset=UTF-8"));
     }
 
 
