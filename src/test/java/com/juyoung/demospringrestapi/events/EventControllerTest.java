@@ -3,8 +3,10 @@ package com.juyoung.demospringrestapi.events;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -35,6 +37,11 @@ public class EventControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    // WebMvcTest 웹용 bean만 등록, repository bean 생성 안해준다.
+    // mock 객체 : null
+    @MockBean
+    private EventRepository eventRepository;
+
     @Test
     public void createEvent() throws Exception {
         // Given
@@ -50,6 +57,10 @@ public class EventControllerTest {
                 .limitOfEnrollment(100)
                 .location("강남역 D2 startup factory")
                 .build();
+
+        // eventrepository에 save를 호출하면, event를 리턴하라
+        event.setId(10);
+        Mockito.when(eventRepository.save(event)).thenReturn(event);
 
         mockMvc.perform(post("/api/events/")            // perform : 요청
                 .contentType(MediaType.APPLICATION_JSON_UTF8)       // JSON content을 넘긴다.

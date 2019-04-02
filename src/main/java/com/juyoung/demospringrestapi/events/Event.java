@@ -2,6 +2,7 @@ package com.juyoung.demospringrestapi.events;
 
 import lombok.*;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 
@@ -10,8 +11,10 @@ import java.time.LocalDateTime;
 @Getter @Setter
 @Builder @NoArgsConstructor @AllArgsConstructor
 @EqualsAndHashCode(of = {"id", "name"}) // 객체간의 엔티티를 참조할 때 상호 연관관계에 해당하는 필드는 사용하지 X
+@Entity
 public class Event {
 
+    @Id @GeneratedValue
     private int id;
     private String name;
     private String description;
@@ -26,6 +29,8 @@ public class Event {
 
     private boolean offline;
     private boolean free;
+
+    @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
 
 }
