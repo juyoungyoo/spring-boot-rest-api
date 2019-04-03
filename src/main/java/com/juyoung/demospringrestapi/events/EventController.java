@@ -21,7 +21,6 @@ public class EventController {
     private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
 
-//    @Autowired : 이미 빈으로 등록된 경우 생략
     public EventController(EventRepository eventRepository, ModelMapper modelMapper) {
          this.eventRepository = eventRepository;
          this.modelMapper = modelMapper;
