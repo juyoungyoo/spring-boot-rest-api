@@ -66,7 +66,14 @@ public class EventControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(eventDto)))
-                .andExpect(status().isBadRequest());
+                .andDo(print() )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+//                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].code").exists())
+//                .andExpect(jsonPath("$[0].rejectedValue").exists())
+        ;
     }
 
     @Test @TestDescription("입력값이 비어있는 경우에 에러가 발생하는 테스트")

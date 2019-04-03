@@ -33,15 +33,17 @@ public class EventController {
     // : dto에 바인딩할 때, 검증을 할 수 있다.
     // BindingResult는 항상 @Valid 바로 다음 인자로 사용해야 한다. ( 스프링 MVC )
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors){
+    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors){    // errors : java bean spec을 따르지 않는다.
 
         if(errors.hasErrors()){
-            return ResponseEntity.badRequest().build();
+//            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);
         }
 
         eventValidator.validate(eventDto, errors);
         if(errors.hasErrors()){
-            return ResponseEntity.badRequest().build();
+//            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);
         }
         Event event = modelMapper.map(eventDto, Event.class);       // EventDto > Event class로 변환
 
