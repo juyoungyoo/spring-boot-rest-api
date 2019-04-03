@@ -1,5 +1,6 @@
 package com.juyoung.demospringrestapi.events;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -46,7 +47,19 @@ public class EventControllerTest {
 
 
     @Test
-    public void createEvent_Bad_request() throws Exception {
+    public void createEnvent_Bad_Reequest_Empty_Input() throws Exception {
+        EventDto eventDto = EventDto.builder().build();
+
+        this.mockMvc.perform(post("/api/events/")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(eventDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createEvent_Bad_Request() throws Exception {
         // Givenr
         Event event = Event.builder()
                 .id(100)
