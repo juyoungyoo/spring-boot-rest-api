@@ -19,8 +19,6 @@ public class ErrorsSerializer extends JsonSerializer<Errors> {
      * - FieldError : rejectValue
      * - GlobalError : reject
      */
-
-
     @Override
     public void serialize(Errors errors,
                           JsonGenerator gen,

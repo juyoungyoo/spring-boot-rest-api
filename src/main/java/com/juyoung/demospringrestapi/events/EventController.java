@@ -47,14 +47,19 @@ public class EventController {
         }
         Event event = modelMapper.map(eventDto, Event.class);       // EventDto > Event class로 변환
 
+        // TODO service에 위임
+        event.update();
         Event newEvent = this.eventRepository.save(event);
+        // TODO /service에 위임
+
         // 1. Location URL 만들기
         // - HATEOS가 제공하는 linkTo(), MethodOn() 사용
         /*
             URI createUri = linkTo(methodOn(EventController.class).createEvent(null)).slash("{id}").toUri();
-            return ResponseEntity.created(createUri).build();
+             return ResponseEntity.created(createUri).build();
         */
 //        URI createUri = linkTo(EventController.class).slash("{id}
+//        linkTo() : spring HATEOAS
         URI createUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
         return ResponseEntity.created(createUri).body(event);
     }

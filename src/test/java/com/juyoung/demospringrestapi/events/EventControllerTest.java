@@ -39,7 +39,7 @@ public class EventControllerTest {
     private MockMvc mockMvc;    // mocking : 가짜 요청/응답 확인가능 ( 속도 : 웹 구동 < mockMvc < 단위 테스트 )
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;  // spring boot 자동 매핑 ( bean )
 
     // WebMvcTest 웹용 bean만 등록, repository bean 생성 안해준다.
     // mock 객체 : null
@@ -69,10 +69,10 @@ public class EventControllerTest {
                 .andDo(print() )
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$[0].objectName").exists())
-//                .andExpect(jsonPath("$[0].field").exists())
-                .andExpect(jsonPath("$[0].defaultMessage").exists())
-                .andExpect(jsonPath("$[0].code").exists())
-//                .andExpect(jsonPath("$[0].rejectedValue").exists())
+//                .andExpect(jsonPath("$[0].field").exists())   // field
+                .andExpect(jsonPath("$[0].defaultMessage").exists())    // 메세지
+                .andExpect(jsonPath("$[0].code").exists())              // 에러코드
+//                .andExpect(jsonPath("$[0].rejectedValue").exists())             // 입력을 거절당한 value 값
         ;
     }
 
@@ -150,8 +150,13 @@ public class EventControllerTest {
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/hal+json;charset=UTF-8"))
                 .andExpect(jsonPath("id").value(Matchers.not(100)))
-                .andExpect(jsonPath("free").value(Matchers.not(true)))
+                .andExpect(jsonPath("free").value(false))
+                .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+                .andExpect(jsonPath("_link.self").exists())
+                .andExpect(jsonPath("_link.query-events").exists())
+                .andExpect(jsonPath("_link.update-event").exists())
+//                .andExpect(jsonPath("_link.profile").exists())
         ;
     }
 

@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
  * JSON ignore annotaion 도 가능하나 너무 많은 애노테이션 사용함으로 분
  * @validation 도 추가 예정이기 때문에
  * 단점 : 중복
+ * JSR 303
+ * binding
  */
 @Builder @NoArgsConstructor @AllArgsConstructor
 @Setter @Getter

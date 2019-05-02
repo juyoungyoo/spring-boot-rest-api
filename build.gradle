@@ -28,18 +28,13 @@ dependencies {
     runtime 'com.h2database:h2'
     compile 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
-    
+
     compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.2'
+
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    // 매개변수 리팩토
+    testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
+
 }
-
-//test {
-//    outputs.dir snippetsDir
-//}
-
-//asciidoctor {
-//    inputs.dir snippetsDir
-//    dependsOn test
-//}
