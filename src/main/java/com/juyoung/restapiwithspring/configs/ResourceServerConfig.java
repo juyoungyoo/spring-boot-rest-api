@@ -24,11 +24,13 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http
+            .csrf().disable()
             .anonymous()
                 .and()
             .authorizeRequests()
                 .mvcMatchers(HttpMethod.GET, "/api/**")
-                    .anonymous()
+//                    .anonymous() //  인증 안됫을때만 사용가능
+                    .permitAll()    // 모두 사용가능
                 .anyRequest()
                     .authenticated()
                 .and()

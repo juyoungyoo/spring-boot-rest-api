@@ -14,9 +14,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+    # PostgreSQL crateClob() error
     jdbc:
       lob:
-        non_conteextual_creation: true
+        non_contextual_creation: true
     format_sql: true
     show-sql: true
     open-in-view: false
