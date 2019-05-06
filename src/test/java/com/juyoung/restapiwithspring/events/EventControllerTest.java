@@ -6,6 +6,7 @@ import com.juyoung.restapiwithspring.accounts.AccountRepository;
 import com.juyoung.restapiwithspring.accounts.AccountService;
 import com.juyoung.restapiwithspring.accounts.RoleType;
 import com.juyoung.restapiwithspring.common.TestDescription;
+import com.juyoung.restapiwithspring.configs.AppProperties;
 import org.codehaus.jackson.JsonParser;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -59,6 +60,8 @@ public class EventControllerTest {
     private AccountService accountService;
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    AppProperties appProperties;
 
     // WebMvcTest 웹용 bean만 등록, repository bean 생성 안해준다.
     // mock 객체 : null
@@ -90,6 +93,7 @@ public class EventControllerTest {
                 .build();
 
         this.mockMvc.perform(post("/api/events/")
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(eventDto)))
@@ -108,6 +112,7 @@ public class EventControllerTest {
         EventDto eventDto = EventDto.builder().build();
 
         this.mockMvc.perform(post("/api/events/")
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(eventDto)))
@@ -137,6 +142,7 @@ public class EventControllerTest {
                 .build();
 
         mockMvc.perform(post("/api/events/")
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(event)) )
@@ -193,21 +199,17 @@ public class EventControllerTest {
     }
 
     private String getAccessToken() throws Exception {
-        String clientId = "myApp";
-        String clientSecret = "pass";
-        String username = "juyoung@email.com";
-        String password = "pass";
         Account account = Account.builder()
-                .email(username)
-                .password(password)
+                .email(appProperties.getUserUsername())
+                .password(appProperties.getUserPassword())
                 .roles(Arrays.stream(RoleType.values()).collect(Collectors.toSet()))
                 .build();
         this.accountService.saveAccount(account);
 
         ResultActions perform = mockMvc.perform(post("/oauth/token")
-                .with(httpBasic(clientId, clientSecret)) // basic auth 생성
-                .param("username", username)
-                .param("password", password)
+                .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret())) // basic auth 생성
+                .param("username", appProperties.getUserUsername())
+                .param("password", appProperties.getUserPassword())
                 .param("grant_type", "password"));
 
         String response = perform.andReturn().getResponse().getContentAsString();

@@ -33,6 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AuthServerConfigTest{
 
     @Autowired
+    AppProperties appProperties;
+    @Autowired
     AccountService accountService;
     @Autowired
     MockMvc mockMvc;
@@ -43,20 +45,10 @@ public class AuthServerConfigTest{
         // grant-type password 특징 : hope 요청, 응답이 한쌍으로 한번만 한다. ( 써드파트에서 사용 x, 인증정보를 보유하고 있는 곳에서만 사용해야함)
         // third party app이기 때문에, facebook나 google등 서버에게 redirection 발생
         // hope이 많음
-        String clientId = "myApp";
-        String clientSecret = "pass";
-        String username = "juyoung@email.com";
-        String password = "pass";
-        Account account = Account.builder()
-                            .email(username)
-                            .password(password)
-                            .roles(Arrays.stream(RoleType.values()).collect(Collectors.toSet()))
-                            .build();
-
         mockMvc.perform(post("/oauth/token")
-                        .with(httpBasic(clientId,clientSecret)) // basic auth 생성
-                        .param("username", username)
-                        .param("password", password)
+                        .with(httpBasic(appProperties.getClientId(),appProperties.getClientSecret())) // basic auth 생성
+                        .param("username", appProperties.getUserUsername())
+                         .param("password", appProperties.getUserPassword())
                         .param("grant_type", "password")
                 )
                 .andDo(print())

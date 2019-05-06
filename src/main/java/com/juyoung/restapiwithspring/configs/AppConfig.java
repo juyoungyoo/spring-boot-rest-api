@@ -35,19 +35,22 @@ public class AppConfig {
         return new ApplicationRunner() {
             @Autowired
             AccountService accountService;
+            @Autowired
+            AppProperties appProperties;
+
             @Override
             public void run(ApplicationArguments args) throws Exception {
                 Set<RoleType> roles = Arrays.stream(RoleType.values()).collect(Collectors.toSet());
 
                 Account admin = Account.builder()
-                        .email("admin@email.com")
-                        .password("admin")
+                        .email(appProperties.getAdminUsername())
+                        .password(appProperties.getAdminPassword())
                         .roles(roles)
                         .build();
 
                 Account user = Account.builder()
-                        .email("user@email.com")
-                        .password("user")
+                        .email(appProperties.getUserUsername())
+                        .password(appProperties.getUserPassword())
                         .roles(roles)
                         .build();
 

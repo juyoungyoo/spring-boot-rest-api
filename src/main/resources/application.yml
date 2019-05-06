@@ -25,7 +25,6 @@ spring:
       hibernate:
         temp:
           use_jdbc_metadata_defaults: false
-
 logging:
   level:
     org.springframework.security: DEBUG
@@ -33,3 +32,10 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 # todo : logging confirm
+my-app:
+  admin-username: admin@email.com
+  admin-password: admin
+  user-username: user@email.com
+  user-password: user
+  client-id: myApp
+  client-secret: pass
