@@ -1,6 +1,7 @@
 package com.juyoung.restapiwithspring.configs;
 
 import com.juyoung.restapiwithspring.accounts.Account;
+import com.juyoung.restapiwithspring.accounts.AccountRepository;
 import com.juyoung.restapiwithspring.accounts.AccountService;
 import com.juyoung.restapiwithspring.accounts.RoleType;
 import org.modelmapper.ModelMapper;
@@ -34,16 +35,24 @@ public class AppConfig {
         return new ApplicationRunner() {
             @Autowired
             AccountService accountService;
-
             @Override
             public void run(ApplicationArguments args) throws Exception {
                 Set<RoleType> roles = Arrays.stream(RoleType.values()).collect(Collectors.toSet());
-                Account juyoung = Account.builder()
-                        .email("juyoung@email.com")
-                        .password("pass")
+
+                Account admin = Account.builder()
+                        .email("admin@email.com")
+                        .password("admin")
                         .roles(roles)
                         .build();
-                accountService.saveAccount(juyoung);
+
+                Account user = Account.builder()
+                        .email("user@email.com")
+                        .password("user")
+                        .roles(roles)
+                        .build();
+
+                accountService.saveAccount(admin);
+                accountService.saveAccount(user);
             }
         };
     }

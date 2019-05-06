@@ -1,8 +1,14 @@
 package com.juyoung.restapiwithspring.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.juyoung.restapiwithspring.accounts.Account;
+import com.juyoung.restapiwithspring.accounts.AccountRepository;
+import com.juyoung.restapiwithspring.accounts.AccountService;
+import com.juyoung.restapiwithspring.accounts.RoleType;
 import com.juyoung.restapiwithspring.common.TestDescription;
+import org.codehaus.jackson.JsonParser;
 import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +17,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -42,11 +55,20 @@ public class EventControllerTest {
     @Autowired
     private ObjectMapper objectMapper;  // spring boot 자동 매핑 ( bean )
 
+    @Autowired
+    private AccountService accountService;
+    @Autowired
+    private AccountRepository accountRepository;
+
     // WebMvcTest 웹용 bean만 등록, repository bean 생성 안해준다.
     // mock 객체 : null
 //    @MockBean
 //    private EventRepository eventRepository;
 
+    @Before
+    public void setUp() throws Exception {
+        accountRepository.deleteAll();
+    }
 
     @Test @TestDescription("30개의_이벤트를_10개씩_두번째_페이지_조회하기")
     public void queryEvents() {
@@ -146,6 +168,7 @@ public class EventControllerTest {
 
 
         mockMvc.perform(post("/api/events/")             // perform : 요청
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)       // JSON content을 넘긴다.
                 .accept(MediaTypes.HAL_JSON)                        // HAL : Hypertext Application Language / Accept : response 받기 원하는 요청 설정
                 .content(objectMapper.writeValueAsString(event)) )  //**  objectMapper.writeValueAsString  : JSON 형식으로 변환
@@ -163,6 +186,33 @@ public class EventControllerTest {
 //                .andExpect(jsonPath("_link.update-event").exists())
 //                .andExpect(jsonPath("_link.profile").exists())
         ;
+    }
+
+    private String getBearerToken() throws Exception {
+        return "bearer " + getAccessToken();
+    }
+
+    private String getAccessToken() throws Exception {
+        String clientId = "myApp";
+        String clientSecret = "pass";
+        String username = "juyoung@email.com";
+        String password = "pass";
+        Account account = Account.builder()
+                .email(username)
+                .password(password)
+                .roles(Arrays.stream(RoleType.values()).collect(Collectors.toSet()))
+                .build();
+        this.accountService.saveAccount(account);
+
+        ResultActions perform = mockMvc.perform(post("/oauth/token")
+                .with(httpBasic(clientId, clientSecret)) // basic auth 생성
+                .param("username", username)
+                .param("password", password)
+                .param("grant_type", "password"));
+
+        String response = perform.andReturn().getResponse().getContentAsString();
+        Jackson2JsonParser parser = new Jackson2JsonParser();
+        return parser.parseMap(response).get("access_token").toString();
     }
 
 }
