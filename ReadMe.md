@@ -32,6 +32,13 @@ authentication manager 주요 interface
 
 ##권한을 확인한다.
 1. accessdecisionManager : user의 role로 확인한다. 
+
+## spring security Oauth2.0
+- AuthorizationServer : OAuth2 token 발행(/oauth/token) 및 토큰 인증(/oauth/authorize)
+    - Oder 0 ( Resource server보다 우선순위가 높다. )
+- ResourceServer : resource 요청 인증 처리 (Oauth 2 토큰 검사) 
+    - Oder 3 
+- 공통설정 ( spring security config )
   
  
 

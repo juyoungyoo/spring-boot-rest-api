@@ -33,6 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     // AuthenticationManager bean setting
+    // 유저 인증정보를 가지고 있다.
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -52,19 +53,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().mvcMatchers("/docs/index.html");
         web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
-    }
-
-    // 동일
-    // todo : 사용자 계정 추가, 이메일 인증
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.anonymous()    // 익명 허용
-                .and()
-             .formLogin()
-                .and()
-             .authorizeRequests()
-                .mvcMatchers(HttpMethod.GET, "/api").authenticated()
-                .mvcMatchers(HttpMethod.GET, "/api/**").authenticated()
-                .anyRequest().authenticated();  // 나머지는 모두 인증이 필요하다
     }
 }
