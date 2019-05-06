@@ -11,10 +11,4 @@ public class DemoSpringRestApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(DemoSpringRestApiApplication.class, args);
     }
-
-    @Bean
-    public ModelMapper modelMapper(){
-        return new ModelMapper();
-    }
-
 }

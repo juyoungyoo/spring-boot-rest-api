@@ -26,5 +26,7 @@ spring:
         temp:
           use_jdbc_metadata_defaults: false
 
-
+logging:
+  level:
+    org.springframework.security: DEBUG
 # todo : logging confirm
