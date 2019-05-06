@@ -1,10 +1,8 @@
-package com.juyoung.demospringrestapi.events;
+package com.juyoung.restapiwithspring.events;
 
 
 import lombok.*;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;

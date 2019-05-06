@@ -1,4 +1,4 @@
-package com.juyoung.demospringrestapi;
+package com.juyoung.restapiwithspring;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

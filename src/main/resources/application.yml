@@ -1,0 +1,30 @@
+# Spring boot 지원 object mapper
+# object json -> object  변환 (fail)
+# 객체 -> json
+#spring.jackson.serialization.
+spring:
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/colini
+    username: friday
+    password: pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    jdbc:
+      lob:
+        non_conteextual_creation: true
+    format_sql: true
+    show-sql: true
+    open-in-view: false
+    # PostgreSQL crateClob() error
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+
+
+# todo : logging confirm

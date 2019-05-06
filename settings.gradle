@@ -3,4 +3,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'demo-spring-rest-api'
+rootProject.name = 'rest-api-with-spring'

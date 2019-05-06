@@ -1,0 +1,36 @@
+package com.juyoung.restapiwithspring.accounts;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Service
+public class AccountService implements UserDetailsService {
+
+    @Autowired
+    AccountRepository accountRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // 우리가 사용하는 domain > spring security가 정의한 interface형으로 변환시킴
+        Account account = accountRepository.findByEmail(username)
+                .orElseThrow(()-> new UsernameNotFoundException(username));
+        return new User(account.getEmail(), account.getPassword(), authorities(account.getRoles()));
+    }
+
+    private Collection<? extends GrantedAuthority> authorities(Set<RoleType> roles) {
+        return roles.stream()
+                .map(r->new SimpleGrantedAuthority("ROLE_" + r.name()))
+                .collect(Collectors.toSet());
+    }
+}

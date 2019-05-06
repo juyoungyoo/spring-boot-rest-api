@@ -1,4 +1,4 @@
-package com.juyoung.demospringrestapi.common;
+package com.juyoung.restapiwithspring.common;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

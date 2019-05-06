@@ -1,4 +1,4 @@
-package com.juyoung.demospringrestapi.common;
+package com.juyoung.restapiwithspring.common;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

@@ -21,16 +21,19 @@ repositories {
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/org.springframework.security.oauth.boot/spring-security-oauth2-autoconfigure
+    compile group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: '2.1.4.RELEASE'
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
-    runtime 'com.h2database:h2'
+//    runtime 'com.h2database:h2'
+    testCompile 'com.h2database:h2'
     compile 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
 
     compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.2'
-
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'

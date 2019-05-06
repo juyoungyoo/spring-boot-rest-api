@@ -1,4 +1,4 @@
-package com.juyoung.demospringrestapi.events;
+package com.juyoung.restapiwithspring.events;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -40,14 +40,11 @@ public class EventTest {
     @Parameters
 //    @Parameters(method ="parametersForTestFree")
     public void testFree(int basePrice, int maxPrice, boolean isFree) {
-        // Given
         Event event = Event.builder()
                 .basePrice(basePrice)
                 .maxPrice(maxPrice)
                 .build();
-        // When
         event.update();
-        // Then
 //        assertThat(event.isFree()).isTrue();
         assertThat(event.isFree()).isEqualTo(isFree);
     }

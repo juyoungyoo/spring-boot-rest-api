@@ -1,4 +1,4 @@
-package com.juyoung.demospringrestapi;
+package com.juyoung.restapiwithspring;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;

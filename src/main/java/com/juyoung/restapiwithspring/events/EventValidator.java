@@ -1,4 +1,4 @@
-package com.juyoung.demospringrestapi.events;
+package com.juyoung.restapiwithspring.events;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
