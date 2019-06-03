@@ -11,7 +11,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 public class IndexController {
 
     @GetMapping("/api")
-    public ResourceSupport root(){
+    public ResourceSupport index(){
         ResourceSupport index = new ResourceSupport();
         index.add(linkTo(EventController.class).withRel("events"));
         return index;

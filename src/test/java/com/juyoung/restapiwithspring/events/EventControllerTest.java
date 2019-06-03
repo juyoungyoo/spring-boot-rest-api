@@ -26,14 +26,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.nio.channels.AcceptPendingException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -92,17 +89,17 @@ public class EventControllerTest {
                 .location("강남역 D2 startup factory")
                 .build();
 
-        this.mockMvc.perform(post("/api/events/")
+        this.mockMvc.perform(post("/api/events")
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$[0].objectName").exists())
-                .andExpect(jsonPath("$[0].defaultMessage").exists())    // 메세지
-                .andExpect(jsonPath("$[0].code").exists())              // 에러코드
-//                .andExpect(jsonPath("$[0].rejectedValue").exists())             // 입력을 거절당한 value 값
+                .andExpect(jsonPath("content[0].objectName").exists())
+                .andExpect(jsonPath("content[0].defaultMessage").exists())    // 메세지
+                .andExpect(jsonPath("content[0].code").exists())              // 에러코드
+                .andExpect(jsonPath("_links.index").exists())
         ;
     }
 
@@ -111,7 +108,7 @@ public class EventControllerTest {
     public void createEnvent_Bad_Reequest_Empty_Input() throws Exception {
         EventDto eventDto = EventDto.builder().build();
 
-        this.mockMvc.perform(post("/api/events/")
+        this.mockMvc.perform(post("/api/events")
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON)
@@ -141,7 +138,7 @@ public class EventControllerTest {
                 .eventStatus(EventStatus.PUBLISHED)
                 .build();
 
-        mockMvc.perform(post("/api/events/")
+        mockMvc.perform(post("/api/events")
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON)
@@ -168,7 +165,7 @@ public class EventControllerTest {
                 .location("강남역 D2 startup factory")
                 .build();
 
-        mockMvc.perform(post("/api/events/")             // perform : 요청
+        mockMvc.perform(post("/api/events")             // perform : 요청
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)       // JSON content을 넘긴다.
                 .accept(MediaTypes.HAL_JSON)                        // HAL : Hypertext Application Language / Accept : response 받기 원하는 요청 설정
@@ -185,12 +182,11 @@ public class EventControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.query-events").exists())
                 .andExpect(jsonPath("_links.update-event").exists())
-//                .andExpect(jsonPath("_link.profile").exists())
                 .andDo(document("create-event",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("query-events").description("link to query events"),
-//                                linkWithRel("profile").description("link to profile"),
+                                linkWithRel("profile").description("link to profile"),
                                 linkWithRel("update-event").description("link to update an existing")
                         ),
                         requestHeaders(
@@ -229,6 +225,7 @@ public class EventControllerTest {
                                 fieldWithPath("offline").description("it tells if this event offline meeting or not"),
                                 fieldWithPath("eventStatus").description("event status"),
                                 fieldWithPath("_links.self.href").description("link to self"),
+                                fieldWithPath("_links.profile.href").description("link to profile"),
                                 fieldWithPath("_links.query-events.href").description("link to query events"),
                                 fieldWithPath("_links.update-event.href").description("link to update events")
                         )

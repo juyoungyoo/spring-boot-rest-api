@@ -1,7 +1,9 @@
 package com.juyoung.restapiwithspring.events;
 
 
+import com.juyoung.restapiwithspring.common.ErrorsResource;
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -36,11 +38,11 @@ public class EventController {
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors){    // errors : java bean spec을 따르지 않는다.
         if(errors.hasErrors()){
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
         eventValidator.validate(eventDto, errors);
         if(errors.hasErrors()){
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
         Event event = modelMapper.map(eventDto, Event.class);
 
@@ -52,6 +54,11 @@ public class EventController {
         EventResource resource = new EventResource(event);
         resource.add(linkTo(EventController.class).withRel("query-events"));
         resource.add(selfLinkBuilder.withRel("update-event"));
+        resource.add(new Link("/docs/index.html").withRel("profile"));
         return ResponseEntity.created(createUri).body(resource);
+    }
+
+    private ResponseEntity badRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(new ErrorsResource(errors));
     }
 }

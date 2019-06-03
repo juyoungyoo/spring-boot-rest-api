@@ -22,6 +22,11 @@
 - PostgreSQL
 - Gradle 5.2.1
 
+## TODO 
+- [ ] docker-compose
+
+
+
 ## 
 authentication manager 주요 interface
 1. userdetailservice
