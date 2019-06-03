@@ -36,7 +36,6 @@ public class AccountServiceTest {
 
     @Test
     public void findByUsername() {
-        // given
         String username = "juyoung@email.com";
         String pass = "pass";
 
@@ -50,11 +49,10 @@ public class AccountServiceTest {
         UserDetailsService userDetailsService = accountService;
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        // raw 입력한 값
         assertThat(passwordEncoder.matches(pass, userDetails.getPassword())).isTrue();
     }
 
-//    @Test(expected = UsernameNotFoundException.class)
+    /*  예외 테스트 3가지   */
     @Test
     public void findByUserNameFail() {
         String username = "nonEmail@email.com";
@@ -65,6 +63,12 @@ public class AccountServiceTest {
             assertThat(e instanceof UsernameNotFoundException).isTrue();
             assertThat(e.getMessage()).containsSequence(username);
         }
+    }
+
+    @Test(expected = UsernameNotFoundException.class)
+    public void findByUserNameFail_expected_method() {
+        String username = "nonEmail@email.com";
+        accountService.loadUserByUsername(username);
     }
 
     @Test

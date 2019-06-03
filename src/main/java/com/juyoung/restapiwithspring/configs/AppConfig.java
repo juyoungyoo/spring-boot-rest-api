@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public class AppConfig {
                 Account user = Account.builder()
                         .email(appProperties.getUserUsername())
                         .password(appProperties.getUserPassword())
-                        .roles(roles)
+                        .roles(new HashSet<>(Arrays.asList(RoleType.USER)))
                         .build();
 
                 accountService.saveAccount(admin);

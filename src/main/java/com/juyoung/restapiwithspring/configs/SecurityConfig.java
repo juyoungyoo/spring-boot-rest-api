@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,25 +20,22 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-
     @Autowired
-    AccountService accountService; // equals userdetails service
+    AccountService accountService;
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    // token 저장소 : inmemory
     @Bean
     public TokenStore tokenStore(){
         return new InMemoryTokenStore();
     }
 
-    // AuthenticationManager bean setting
-    // 유저 인증정보를 가지고 있다.
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(accountService)
@@ -52,19 +48,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
+    /*
     @Override
-    public void configure(HttpSecurity http) throws Exception {
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests().antMatchers("/error").permitAll();
         http
                 .csrf().disable()
+                .cors().disable()
+                .formLogin()
+                    .and()  // 회원가입, 로그인 이메일 인증
                 .authorizeRequests()
-                    .mvcMatchers("/docs/index.html")
-                        .permitAll()
-                    .mvcMatchers( "/api/**")
-                        .permitAll()    // 모두 사용가능
-                    .anyRequest()
-                        .authenticated()
-                    .and()
-                .formLogin();
-    }
+                    .antMatchers(HttpMethod.GET, "/api/**").permitAll()
+                    .anyRequest().authenticated();
+    }*/
 }
-

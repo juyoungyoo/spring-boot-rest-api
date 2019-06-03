@@ -9,13 +9,12 @@ import java.util.Set;
 
 @Entity
 @Getter @Setter
-@EqualsAndHashCode(of="id")
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode(of = "id")
+@Builder @NoArgsConstructor @AllArgsConstructor
 public class Account {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private long id;
     @Column(unique = true)
     private String email;
@@ -23,6 +22,5 @@ public class Account {
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(value = EnumType.STRING)
     private Set<RoleType> roles;
-
 
 }

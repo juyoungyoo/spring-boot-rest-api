@@ -31,9 +31,15 @@
 authentication manager 주요 interface
 1. userdetailservice
 2. password encoder
-- basic authentication : header에 authentication + baisc + username + password encoding한 값을 가지고 
+- basic authentication : header에 authentication + basic + username + password encoding한 값을 가지고 
 입력받은 username의 password를 읽어온 password와 사용자가 입력한 값이 매칭하는지 password encoder로 검사한다.
-- 확인 후 scurity context holder에 저장을 한다.
+- 확인 후 `security context holder`에 저장을 한다.
+
+## Spring security oAuth2.0
+- Authorization Server : OAuth2 토큰 발행, 인증 (/oauth/token, /oauth/authorize), 우선순위 (Order: 0)
+- Resource Server : 리소스 요청, 인증 처리(OAuth token 검사), 우선순위  (Order: 3)
+- SecurityConfig : Auth + Resource 공통으로 사용되는 설정 
+
 
 ##권한을 확인한다.
 1. accessdecisionManager : user의 role로 확인한다. 

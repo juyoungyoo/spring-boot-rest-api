@@ -21,20 +21,18 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http
-            .csrf().disable()
             .anonymous()
                 .and()
+            .csrf().disable()
             .authorizeRequests()
-                .mvcMatchers("/docs/index.html").permitAll()
-                .mvcMatchers( "/api/**")
-                    .permitAll()    // 모두 사용가능
+                .mvcMatchers( HttpMethod.GET, "/api/**").permitAll()
                 .anyRequest()
                     .authenticated()
                 .and()
-            .formLogin();
+//            .formLogin();
 //                .and()
-//            .exceptionHandling()   // 인증 이 잘못된경우, 권한이 잘못된 경우
-//                .accessDeniedHandler(new OAuth2AccessDeniedHandler()); // 접근권한이 없는 경우에 exception을 하겠다
+            .exceptionHandling()   // 인증 이 잘못된경우, 권한이 잘못된 경우
+                .accessDeniedHandler(new OAuth2AccessDeniedHandler()); // 접근권한이 없는 경우에 exception을 하겠다
     }
 }
 

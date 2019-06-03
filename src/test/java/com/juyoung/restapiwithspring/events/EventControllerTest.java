@@ -1,31 +1,20 @@
 package com.juyoung.restapiwithspring.events;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juyoung.restapiwithspring.accounts.Account;
 import com.juyoung.restapiwithspring.accounts.AccountRepository;
 import com.juyoung.restapiwithspring.accounts.AccountService;
 import com.juyoung.restapiwithspring.accounts.RoleType;
-import com.juyoung.restapiwithspring.common.RestDocsConfiguration;
+import com.juyoung.restapiwithspring.common.BaseControllerTest;
 import com.juyoung.restapiwithspring.common.TestDescription;
 import com.juyoung.restapiwithspring.configs.AppProperties;
-import com.sun.media.sound.ModelMappedInstrument;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
@@ -39,27 +28,11 @@ import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.li
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@AutoConfigureRestDocs
-@Import(RestDocsConfiguration.class)
-public class EventControllerTest {
-
-    /* @mockMvc :  웹 서버를 띄우지 않고 Spring MVC ( DispatherServlet )가 처리하는 과정 확인이 가능하여 '컨트롤러 테스트'로 많이 사용한다. */
-    @Autowired
-    private MockMvc mockMvc;    // mocking : 가짜 요청/응답 확인가능 ( 속도 : 웹 구동 < mockMvc < 단위 테스트 )
-
-    @Autowired
-    private ObjectMapper objectMapper;  // spring boot 자동 매핑 ( bean )
+public class EventControllerTest extends BaseControllerTest {
 
     @Autowired
     private AccountService accountService;
@@ -67,14 +40,14 @@ public class EventControllerTest {
     private AccountRepository accountRepository;
     @Autowired
     private EventRepository eventRepository;
-    @Autowired
-    ModelMapper modelMapper;
+
     @Autowired
     AppProperties appProperties;
 
     @Before
     public void setUp() throws Exception {
         accountRepository.deleteAll();
+        eventRepository.deleteAll();
     }
 
     @Test
@@ -86,6 +59,7 @@ public class EventControllerTest {
         expectEvent.setName(eventName);
 
         mockMvc.perform(put("/api/events/{id}", originEvent.getId())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .content(objectMapper.writeValueAsString(expectEvent))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON))
@@ -103,6 +77,7 @@ public class EventControllerTest {
     public void updateEvent_Data_Empty_400() throws Exception {
         EventDto eventDto = EventDto.builder().build();
         mockMvc.perform(put("/api/events/234")
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .content(objectMapper.writeValueAsString(eventDto))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON))
@@ -121,6 +96,7 @@ public class EventControllerTest {
         eventDto.setMaxPrice(500);
 
         mockMvc.perform(put("/api/events/{id}", originEvent.getId())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .content(objectMapper.writeValueAsString(eventDto))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON))
@@ -136,6 +112,7 @@ public class EventControllerTest {
         eventDto.setName("nonEvent");
 
         mockMvc.perform(put("/api/events/234324")
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .content(objectMapper.writeValueAsString(eventDto))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON))
@@ -248,7 +225,7 @@ public class EventControllerTest {
     @Test
     @TestDescription("입력받을 수 없는 값을 사용한 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request() throws Exception {
-        // Givenr
+        // Given
         Event event = Event.builder()
                 .id(100)
                 .name("Spring")
@@ -337,7 +314,7 @@ public class EventControllerTest {
                                 headerWithName(HttpHeaders.LOCATION).description("location header"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("identifier of new event"),
                                 fieldWithPath("name").description("name of new event"),
                                 fieldWithPath("description").description("description of new event"),
