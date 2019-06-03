@@ -32,7 +32,6 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-# todo : logging confirm
 my-app:
   admin-username: admin@email.com
   admin-password: admin

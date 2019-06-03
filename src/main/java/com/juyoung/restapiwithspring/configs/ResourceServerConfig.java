@@ -10,14 +10,11 @@ import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHand
 
 @Configuration
 @EnableResourceServer
-// 리소스 접근이 필요할 때, token service auth server에서 토큰을 확인하는.. 인증 정보가 있는지 없는지 확인, 접근 제한을 한다.
-// 같이써도 상관은 없으나... resource server는 각 application에서 다룬다.
+// 리소스 접근이 필요할 때, token service auth server에서 토큰을 확인한다 인증 정보가 있는지 없는지 확인, 접근 제한을 한다.
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-        // 최소한 resource id는 바꿔야한다.
-//        resources.accessDeniedHandler() // 접근권한이 없는 경우
         resources.resourceId("event");
     }
 
@@ -29,12 +26,11 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .and()
             .authorizeRequests()
                 .mvcMatchers(HttpMethod.GET, "/api/**")
-//                    .anonymous() //  인증 안됫을때만 사용가능
                     .permitAll()    // 모두 사용가능
                 .anyRequest()
                     .authenticated()
                 .and()
-            .exceptionHandling()// 인증 이 잘못된경우, 권한이 잘못된 경우
+            .exceptionHandling()   // 인증 이 잘못된경우, 권한이 잘못된 경우
                 .accessDeniedHandler(new OAuth2AccessDeniedHandler()); // 접근권한이 없는 경우에 exception을 하겠다
     }
 }

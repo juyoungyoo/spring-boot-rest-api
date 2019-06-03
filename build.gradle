@@ -21,7 +21,6 @@ repositories {
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/org.springframework.security.oauth.boot/spring-security-oauth2-autoconfigure
     compile group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: '2.1.4.RELEASE'
     compileOnly "org.springframework.boot:spring-boot-configuration-processor"
 
@@ -29,7 +28,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
-    comp 'com.h2database:h2'
+    runtime 'com.h2database:h2'
     compile 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
 

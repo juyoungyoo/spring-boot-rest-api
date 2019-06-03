@@ -37,14 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-/*
- * @WebMvcTest
- * - 슬라이싱 테스트
- * - Web 관련된 Bean 모두 등록
- */
-//@WebMvcTest
 @RunWith(SpringRunner.class)
-@SpringBootTest         // @SpringBootApplication를 찾아 모든 @bean을 등록한다.
+@SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 public class EventControllerTest {
@@ -62,11 +56,6 @@ public class EventControllerTest {
     private AccountRepository accountRepository;
     @Autowired
     AppProperties appProperties;
-
-    // WebMvcTest 웹용 bean만 등록, repository bean 생성 안해준다.
-    // mock 객체 : null
-//    @MockBean
-//    private EventRepository eventRepository;
 
     @Before
     public void setUp() throws Exception {
@@ -100,7 +89,6 @@ public class EventControllerTest {
                 .andDo(print() )
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$[0].objectName").exists())
-//                .andExpect(jsonPath("$[0].field").exists())   // field
                 .andExpect(jsonPath("$[0].defaultMessage").exists())    // 메세지
                 .andExpect(jsonPath("$[0].code").exists())              // 에러코드
 //                .andExpect(jsonPath("$[0].rejectedValue").exists())             // 입력을 거절당한 value 값
@@ -168,11 +156,6 @@ public class EventControllerTest {
                 .location("강남역 D2 startup factory")
                 .build();
 
-        // eventrepository에 save를 호출하면, event를 리턴하라
-//        event.setId(10);
-//        Mockito.when(eventRepository.save(event)).thenReturn(event);    // eventRepository.save(obj)가 들어갔을 때, mocking 한다. 하지만, 실제로는 다른객체(EventDto)로 repository.save 실행했음으로 해당 mockito가 실행되지 X
-
-
         mockMvc.perform(post("/api/events/")             // perform : 요청
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)       // JSON content을 넘긴다.
@@ -187,9 +170,9 @@ public class EventControllerTest {
                 .andExpect(jsonPath("free").value(false))
                 .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
-//                .andExpect(jsonPath("_links.self").exists())
-//                .andExpect(jsonPath("_link.query-events").exists())
-//                .andExpect(jsonPath("_link.update-event").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.query-events").exists())
+                .andExpect(jsonPath("_links.update-event").exists())
 //                .andExpect(jsonPath("_link.profile").exists())
         ;
     }
