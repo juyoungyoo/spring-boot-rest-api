@@ -30,15 +30,10 @@ public class AccountService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 우리가 사용하는 domain > spring seucrity가 정의한 interface형으로 변환시킴
         Account account = accountRepository.findByEmail(username)
                 .orElseThrow(()-> new UsernameNotFoundException(username));
-        return new User(account.getEmail(), account.getPassword(), authorities(account.getRoles()));
+        return new AccountAdapter(account);
     }
 
-    private Collection<? extends GrantedAuthority> authorities(Set<RoleType> roles) {
-        return roles.stream()
-                .map(r->new SimpleGrantedAuthority("ROLE_" + r.name()))
-                .collect(Collectors.toSet());
-    }
+
 }

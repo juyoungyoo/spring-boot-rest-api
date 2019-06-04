@@ -46,20 +46,21 @@ public class EventControllerTest extends BaseControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        accountRepository.deleteAll();
         eventRepository.deleteAll();
+        accountRepository.deleteAll();
     }
 
     @Test
     @TestDescription("이벤트 수정 성공")
     public void updateEvent() throws Exception {
         String eventName = "Update name";
-        Event originEvent = generateEvent(1);
+
+        Event originEvent = generateEvent(1, createAccount());
         EventDto expectEvent = modelMapper.map(originEvent, EventDto.class);
         expectEvent.setName(eventName);
 
         mockMvc.perform(put("/api/events/{id}", originEvent.getId())
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(false))
                 .content(objectMapper.writeValueAsString(expectEvent))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON))
@@ -131,6 +132,7 @@ public class EventControllerTest extends BaseControllerTest {
     @TestDescription("기존의 이벤트 하나 조회한다")
     public void getEvent() throws Exception {
         Event event = generateEvent(100);
+
         mockMvc.perform(get("/api/events/{id}", event.getId()))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -159,6 +161,44 @@ public class EventControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("query-events"));
+    }
+
+    @Test
+    @TestDescription("30개의_이벤트를_10개씩_두번째_페이지_조회하기")
+    public void queryEventsWithAuthorization() throws Exception {
+        // Given
+        IntStream.range(0, 30).forEach(this::generateEvent);
+        // When
+        ResultActions perform = mockMvc.perform(get("/api/events")
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                .param("page", "1")
+                .param("size", "10")
+                .param("sort", "name,DESC"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("page").exists())
+                .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("_links.create-event").exists())
+                .andDo(document("query-events"));
+    }
+
+    private Event generateEvent(int i, Account account) {
+        Event event = Event.builder()
+                .name("event " + i)
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2019, 4, 2, 23, 57))
+                .closeEnrollmentDateTime(LocalDateTime.of(2019, 4, 3, 23, 57))
+                .beginEventDateTime(LocalDateTime.of(2019, 4, 4, 23, 57))
+                .endEventDateTime(LocalDateTime.of(2019, 4, 5, 23, 57))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역 D2 startup factory")
+                .build();
+        event.setManager(account);
+        return eventRepository.save(event);
     }
 
     private Event generateEvent(int i) {
@@ -339,16 +379,17 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     private String getBearerToken() throws Exception {
-        return "bearer " + getAccessToken();
+        return "bearer " + getAccessToken(true);
     }
 
-    private String getAccessToken() throws Exception {
-        Account account = Account.builder()
-                .email(appProperties.getUserUsername())
-                .password(appProperties.getUserPassword())
-                .roles(Arrays.stream(RoleType.values()).collect(Collectors.toSet()))
-                .build();
-        this.accountService.saveAccount(account);
+    private String getBearerToken(boolean needToAccount) throws Exception {
+        return "bearer " + getAccessToken(needToAccount);
+    }
+
+    private String getAccessToken(boolean needToAccount) throws Exception {
+        if(needToAccount){
+            createAccount();
+        }
 
         ResultActions perform = mockMvc.perform(post("/oauth/token")
                 .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret())) // basic auth 생성
@@ -360,5 +401,15 @@ public class EventControllerTest extends BaseControllerTest {
         Jackson2JsonParser parser = new Jackson2JsonParser();
         return parser.parseMap(response).get("access_token").toString();
     }
+
+    private Account createAccount() {
+        Account account = Account.builder()
+                .email(appProperties.getUserUsername())
+                .password(appProperties.getUserPassword())
+                .roles(Arrays.stream(RoleType.values()).collect(Collectors.toSet()))
+                .build();
+        return this.accountService.saveAccount(account);
+    }
+
 
 }

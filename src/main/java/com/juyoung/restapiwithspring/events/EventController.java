@@ -1,6 +1,9 @@
 package com.juyoung.restapiwithspring.events;
 
 
+import com.juyoung.restapiwithspring.accounts.Account;
+import com.juyoung.restapiwithspring.accounts.AccountAdapter;
+import com.juyoung.restapiwithspring.accounts.CurrentUser;
 import com.juyoung.restapiwithspring.common.ErrorsResource;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -10,7 +13,12 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;               // **
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +50,8 @@ public class EventController {
     @PutMapping("/{id}")
     public ResponseEntity updateEvent(@PathVariable int id,
                                       @RequestBody @Valid EventDto eventDto,
-                                      Errors errors) {
+                                      Errors errors,
+                                      @CurrentUser Account account) {
         if (errors.hasErrors()) {
             return badRequest(errors);
         }
@@ -55,6 +64,10 @@ public class EventController {
             return ResponseEntity.notFound().build();
         }
         Event existingEvent = optionalEvent.get();
+        if(!existingEvent.getManager().equals(account)){
+            return new ResponseEntity(HttpStatus.FORBIDDEN);
+        }
+
         modelMapper.map(eventDto, existingEvent);
         Event updateEvent = eventRepository.save(existingEvent);
 
@@ -64,16 +77,20 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity queryEvents(Pageable pageable,
+    public ResponseEntity queryEvents(@CurrentUser Account account,
+                                      Pageable pageable,
                                       PagedResourcesAssembler assembler) {
         Page<Event> page = eventRepository.findAll(pageable);
         PagedResources pagedResources = assembler.toResource(page, e -> new EventResource((Event) e));
         pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
+        if (account != null) {
+            pagedResources.add(linkTo(EventController.class).withRel("create-event"));
+        }
         return ResponseEntity.ok(pagedResources);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getEvent(@PathVariable int id) {
+    public ResponseEntity getEvent(@PathVariable int id, @CurrentUser Account account) {
         Optional<Event> optionalEvent = eventRepository.findById(id);
         if (!optionalEvent.isPresent()) {
             return ResponseEntity.notFound().build();
@@ -81,16 +98,16 @@ public class EventController {
         Event event = optionalEvent.get();
         EventResource eventResource = new EventResource(event);
         eventResource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
+        if(account != null && event.getManager().equals(account)){
+            eventResource.add(linkTo(EventController.class).slash(event.getId()).withRel("update-event"));
+        }
         return ResponseEntity.ok(eventResource);
     }
 
-
-    // @Valid와 BindingResult (or Error)
-    // : dto에 바인딩할 때, 검증을 할 수 있다.
-    // BindingResult는 항상 @Valid 바로 다음 인자로 사용해야 한다. ( 스프링 MVC )
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto,
-                                      Errors errors) {    // errors : java bean spec을 따르지 않는다.
+                                      Errors errors,
+                                      @CurrentUser Account account) {    // errors : java bean spec을 따르지 않는다.
         if (errors.hasErrors()) {
             return badRequest(errors);
         }
@@ -99,6 +116,7 @@ public class EventController {
             return badRequest(errors);
         }
         Event event = modelMapper.map(eventDto, Event.class);
+        event.setManager(account);
 
         event.update();
         Event newEvent = this.eventRepository.save(event);
