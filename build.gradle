@@ -16,15 +16,13 @@ configurations {
     }
 }
 
-
-
 asciidoctor {
-    dependsOn test // (2)
+    dependsOn test 
 }
 
 bootJar {
-    dependsOn asciidoctor // (3)
-    from ("${asciidoctor.outputDir}/html5") { // (4)
+    dependsOn asciidoctor 
+    from ("${asciidoctor.outputDir}/html5") { 
         into 'static/docs'
     }
 }

@@ -32,6 +32,7 @@ public class Event {
     @JsonSerialize(using = AccountSerializer.class)
     private Account manager;
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private EventStatus eventStatus = EventStatus.DRAFT;
 
     public void update() {

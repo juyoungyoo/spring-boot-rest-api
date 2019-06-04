@@ -23,14 +23,11 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http
             .anonymous()
                 .and()
-            .csrf().disable()
             .authorizeRequests()
                 .mvcMatchers( HttpMethod.GET, "/api/**").permitAll()
-                .anyRequest()
-                    .authenticated()
-                .and()
-//            .formLogin();
-//                .and()
+                .mvcMatchers( HttpMethod.POST, "/api/**").authenticated()
+                .mvcMatchers( HttpMethod.PUT, "/api/**").authenticated()
+            .and()
             .exceptionHandling()   // 인증 이 잘못된경우, 권한이 잘못된 경우
                 .accessDeniedHandler(new OAuth2AccessDeniedHandler()); // 접근권한이 없는 경우에 exception을 하겠다
     }
