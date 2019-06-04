@@ -50,4 +50,9 @@ public class Event {
             this.offline = true;
         }
     }
+
+    public void update(Account currentUser){
+        this.update();
+        this.manager = currentUser;
+    }
 }

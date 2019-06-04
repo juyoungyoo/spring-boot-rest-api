@@ -13,8 +13,7 @@ import java.util.Set;
 @Builder @NoArgsConstructor @AllArgsConstructor
 public class Account {
 
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     private long id;
     @Column(unique = true)
     private String email;

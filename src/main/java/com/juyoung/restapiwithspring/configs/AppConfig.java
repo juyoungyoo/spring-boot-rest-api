@@ -31,33 +31,4 @@ public class AppConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    @Bean
-    public ApplicationRunner applicationRunner(){
-        return new ApplicationRunner() {
-            @Autowired
-            AccountService accountService;
-            @Autowired
-            AppProperties appProperties;
-
-            @Override
-            public void run(ApplicationArguments args) throws Exception {
-                Set<RoleType> roles = Arrays.stream(RoleType.values()).collect(Collectors.toSet());
-
-                Account admin = Account.builder()
-                        .email(appProperties.getAdminUsername())
-                        .password(appProperties.getAdminPassword())
-                        .roles(roles)
-                        .build();
-
-                Account user = Account.builder()
-                        .email(appProperties.getUserUsername())
-                        .password(appProperties.getUserPassword())
-                        .roles(new HashSet<>(Arrays.asList(RoleType.USER)))
-                        .build();
-
-                accountService.saveAccount(admin);
-                accountService.saveAccount(user);
-            }
-        };
-    }
 }
