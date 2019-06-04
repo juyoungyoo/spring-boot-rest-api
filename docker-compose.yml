@@ -1,0 +1,20 @@
+
+version: "2.1"
+
+services:
+  mysql:
+    image: postgres
+    container_name: postgres
+    environment:
+      - TZ=Asia/Seoul
+      - ROOT_PASSWORD=pass
+      - POSTGRES_USER=friday
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=colini
+    ports:
+    - "5432:5432"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "-uroot", "-proot",  "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

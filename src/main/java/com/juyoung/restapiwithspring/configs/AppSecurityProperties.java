@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotEmpty;
 
 @Component
-@ConfigurationProperties(prefix = "my-app")
+@ConfigurationProperties(prefix = "app-security")
 @Getter @Setter
-public class AppProperties {
+public class AppSecurityProperties {
 
     @NotEmpty
     private String adminUsername;

@@ -3,7 +3,7 @@ package com.juyoung.restapiwithspring.init;
 import com.juyoung.restapiwithspring.accounts.Account;
 import com.juyoung.restapiwithspring.accounts.AccountService;
 import com.juyoung.restapiwithspring.accounts.RoleType;
-import com.juyoung.restapiwithspring.configs.AppProperties;
+import com.juyoung.restapiwithspring.configs.AppSecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -20,21 +20,21 @@ public class DefaultUsersInitializer implements ApplicationRunner {
     @Autowired
     AccountService accountService;
     @Autowired
-    AppProperties appProperties;
+    AppSecurityProperties appSecurityProperties;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         Set<RoleType> roles = Arrays.stream(RoleType.values()).collect(Collectors.toSet());
 
         Account admin = Account.builder()
-                .email(appProperties.getAdminUsername())
-                .password(appProperties.getAdminPassword())
+                .email(appSecurityProperties.getAdminUsername())
+                .password(appSecurityProperties.getAdminPassword())
                 .roles(roles)
                 .build();
 
         Account user = Account.builder()
-                .email(appProperties.getUserUsername())
-                .password(appProperties.getUserPassword())
+                .email(appSecurityProperties.getUserUsername())
+                .password(appSecurityProperties.getUserPassword())
                 .roles(new HashSet<>(Arrays.asList(RoleType.USER)))
                 .build();
 

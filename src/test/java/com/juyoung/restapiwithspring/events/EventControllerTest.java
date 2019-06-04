@@ -6,7 +6,7 @@ import com.juyoung.restapiwithspring.accounts.AccountService;
 import com.juyoung.restapiwithspring.accounts.RoleType;
 import com.juyoung.restapiwithspring.common.BaseControllerTest;
 import com.juyoung.restapiwithspring.common.TestDescription;
-import com.juyoung.restapiwithspring.configs.AppProperties;
+import com.juyoung.restapiwithspring.configs.AppSecurityProperties;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class EventControllerTest extends BaseControllerTest {
     private EventRepository eventRepository;
 
     @Autowired
-    AppProperties appProperties;
+    AppSecurityProperties appSecurityProperties;
 
     @Before
     public void setUp() throws Exception {
@@ -320,9 +320,9 @@ public class EventControllerTest extends BaseControllerTest {
         }
 
         ResultActions perform = mockMvc.perform(post("/oauth/token")
-                .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret())) // basic auth 생성
-                .param("username", appProperties.getUserUsername())
-                .param("password", appProperties.getUserPassword())
+                .with(httpBasic(appSecurityProperties.getClientId(), appSecurityProperties.getClientSecret())) // basic auth 생성
+                .param("username", appSecurityProperties.getUserUsername())
+                .param("password", appSecurityProperties.getUserPassword())
                 .param("grant_type", "password"));
 
         String response = perform.andReturn().getResponse().getContentAsString();
@@ -336,8 +336,8 @@ public class EventControllerTest extends BaseControllerTest {
 
     private Account getAccount() {
         return Account.builder()
-                    .email(appProperties.getUserUsername())
-                    .password(appProperties.getUserPassword())
+                    .email(appSecurityProperties.getUserUsername())
+                    .password(appSecurityProperties.getUserPassword())
                     .roles(Arrays.stream(RoleType.values()).collect(Collectors.toSet()))
                     .build();
     }
