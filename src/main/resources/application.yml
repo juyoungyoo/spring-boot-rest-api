@@ -1,8 +1,18 @@
-# Spring boot 지원 object mapper
-# object json -> object  변환 (fail)
-# 객체 -> json
-#spring.jackson.serialization.
 spring:
+  profiles:
+    active: local
+
+app-security:
+  admin-username: admin@email.com
+  admin-password: admin
+  user-username: user@email.com
+  user-password: user
+  client-id: myApp
+  client-secret: pass
+
+---
+spring:
+  profiles: dev
   jackson:
     deserialization:
       fail-on-unknown-properties: true
@@ -26,16 +36,13 @@ spring:
       hibernate:
         temp:
           use_jdbc_metadata_defaults: false
+
 logging:
   level:
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-app-security:
-  admin-username: admin@email.com
-  admin-password: admin
-  user-username: user@email.com
-  user-password: user
-  client-id: myApp
-  client-secret: pass
+---
+spring:
+  profiles: local
