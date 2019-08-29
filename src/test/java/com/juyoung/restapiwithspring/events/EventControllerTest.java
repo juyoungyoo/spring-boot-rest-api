@@ -7,7 +7,6 @@ import com.juyoung.restapiwithspring.accounts.RoleType;
 import com.juyoung.restapiwithspring.common.BaseControllerTest;
 import com.juyoung.restapiwithspring.common.TestDescription;
 import com.juyoung.restapiwithspring.configs.AppSecurityProperties;
-import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +22,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
@@ -35,7 +33,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Slf4j
 public class EventControllerTest extends BaseControllerTest {
 
     @Autowired
