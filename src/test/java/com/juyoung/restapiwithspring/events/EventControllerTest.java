@@ -45,6 +45,7 @@ public class EventControllerTest extends BaseControllerTest {
     @Autowired
     AppSecurityProperties appSecurityProperties;
 
+    // travis test
     @Before
     public void setUp() throws Exception {
         eventRepository.deleteAll();
