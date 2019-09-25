@@ -1,4 +1,5 @@
 # Spring 기반 REST API 개발
+[![Build Status](https://travis-ci.org/juyoungyoo/spring-boot-rest-api.svg?branch=master)](https://travis-ci.org/juyoungyoo/spring-boot-rest-api)
 
 - Spring Boot
 - Spring Framework
@@ -26,7 +27,6 @@
 - [ ] docker-compose
 
 
-
 ## 
 authentication manager 주요 interface
 1. userdetailservice
@@ -40,10 +40,9 @@ authentication manager 주요 interface
 - Resource Server : 리소스 요청, 인증 처리(OAuth token 검사), 우선순위  (Order: 3)
 - SecurityConfig : Auth + Resource 공통으로 사용되는 설정 
 
-
-##권한을 확인한다.
+## 권한을 확인한다.
 1. accessdecisionManager : user의 role로 확인한다. 
-
+ 
 ## spring security Oauth2.0
 - AuthorizationServer : OAuth2 token 발행(/oauth/token) 및 토큰 인증(/oauth/authorize)
     - Oder 0 ( Resource server보다 우선순위가 높다. )
