@@ -216,7 +216,7 @@ public class EventControllerTest extends BaseControllerTest {
 
     @Test
     @TestDescription("입력값이 비어있는 경우에 에러가 발생하는 테스트")
-    public void createEnvent_Bad_Reequest_Empty_Input() throws Exception {
+    public void createEvent_Bad_Request_Empty_Input() throws Exception {
         EventDto.CreateOrUpdate event = EventDto.CreateOrUpdate.builder().build();
 
         this.mockMvc.perform(post("/api/events")

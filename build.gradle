@@ -25,16 +25,23 @@ asciidoctor {
     dependsOn test
 }
 
-task copyDocument(type: Copy) {
+bootJar {
     dependsOn asciidoctor
-
-    from file("build/asciidoc/html5/")
-    into file("src/main/resources/static/docs")
+    from ("${asciidoctor.outputDir}/html5") {
+        into 'static/docs'
+    }
 }
 
-build {
-    dependsOn copyDocument
-}
+//task copyDocument(type: Copy) {
+//    dependsOn asciidoctor
+//
+//    from file("build/asciidoc/html5/")
+//    into file("src/main/resources/static/docs")
+//}
+
+//build {
+//    dependsOn copyDocument
+//}
 
 repositories {
     mavenCentral()
