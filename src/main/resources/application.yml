@@ -2,11 +2,18 @@ spring:
   profiles:
     active: local
 
+  jpa:
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
 app-security:
   admin-username: admin@email.com
-  admin-password: admin
+  admin-password: admin1
   user-username: user@email.com
-  user-password: user
+  user-password: user1
   client-id: myApp
   client-secret: pass
 
@@ -23,26 +30,21 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     # PostgreSQL crateClob() error
     jdbc:
       lob:
         non_contextual_creation: true
-    format_sql: true
-    show-sql: true
-    open-in-view: false
     # PostgreSQL crateClob() error
     properties:
       hibernate:
         temp:
           use_jdbc_metadata_defaults: false
 
-logging:
-  level:
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-
 ---
 spring:
   profiles: local
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop

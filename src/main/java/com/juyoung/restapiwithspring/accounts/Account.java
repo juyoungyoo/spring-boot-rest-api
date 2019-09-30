@@ -10,16 +10,30 @@ import java.util.Set;
 @Entity
 @Getter @Setter
 @EqualsAndHashCode(of = "id")
-@Builder @NoArgsConstructor @AllArgsConstructor
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Account {
 
     @Id @GeneratedValue
     private long id;
+
     @Column(unique = true)
     private String email;
+
     private String password;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(value = EnumType.STRING)
     private Set<RoleType> roles;
 
+    @Override
+    public String toString() {
+        return "Account{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", roles=" + roles +
+                '}';
+    }
 }
