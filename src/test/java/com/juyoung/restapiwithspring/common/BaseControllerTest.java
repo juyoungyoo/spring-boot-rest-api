@@ -7,7 +7,6 @@ import com.juyoung.restapiwithspring.accounts.AccountService;
 import com.juyoung.restapiwithspring.accounts.RoleType;
 import com.juyoung.restapiwithspring.configs.AppSecurityProperties;
 import jdk.nashorn.internal.ir.annotations.Ignore;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.modelmapper.ModelMapper;
@@ -32,16 +31,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.servlet.Filter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 @Ignore
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
@@ -50,7 +46,6 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
 @ActiveProfiles("test")
 @AutoConfigureRestDocs
 @Import(RestDocsConfiguration.class)
-@Slf4j
 public class BaseControllerTest {
 
     @Autowired

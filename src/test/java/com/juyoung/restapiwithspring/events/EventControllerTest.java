@@ -3,7 +3,6 @@ package com.juyoung.restapiwithspring.events;
 import com.juyoung.restapiwithspring.accounts.AccountRepository;
 import com.juyoung.restapiwithspring.common.BaseControllerTest;
 import com.juyoung.restapiwithspring.error.ErrorCode;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Slf4j
 class EventControllerTest extends BaseControllerTest {
 
     private static String EVENT_URL = "/api/events";
