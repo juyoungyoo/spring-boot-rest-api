@@ -8,9 +8,7 @@ import org.springframework.validation.Errors;
 
 import java.io.IOException;
 
-
-// objectMapper 등록방법
-@JsonComponent  // spring boot 제공
+@JsonComponent
 public class ErrorsSerializer extends JsonSerializer<Errors> {
 
     /**

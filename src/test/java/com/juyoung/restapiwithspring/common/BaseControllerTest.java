@@ -7,6 +7,7 @@ import com.juyoung.restapiwithspring.accounts.AccountService;
 import com.juyoung.restapiwithspring.accounts.RoleType;
 import com.juyoung.restapiwithspring.configs.AppSecurityProperties;
 import jdk.nashorn.internal.ir.annotations.Ignore;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.modelmapper.ModelMapper;
@@ -31,13 +32,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.Filter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 @Ignore
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
@@ -46,6 +50,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @ActiveProfiles("test")
 @AutoConfigureRestDocs
 @Import(RestDocsConfiguration.class)
+@Slf4j
 public class BaseControllerTest {
 
     @Autowired
@@ -73,15 +78,16 @@ public class BaseControllerTest {
     public void setUp(RestDocumentationContextProvider restDocumentation) {
         this.mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .addFilter(filterChainProxy)
+                .addFilters(filterChainProxy)
                 .apply(documentationConfiguration(restDocumentation))
                 .build();
     }
 
-    protected ResultActions getResource(String url) throws Exception {
-        return mockMvc.perform(RestDocumentationRequestBuilders.get(url)
+    protected ResultActions getResource(String url, Object... pathVariables) throws Exception {
+        return mockMvc.perform(RestDocumentationRequestBuilders.get(url, pathVariables)
+                .header(HttpHeaders.AUTHORIZATION, "bearer " + getAccessToken(false))
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaTypes.HAL_JSON_UTF8));
+                .accept(MediaTypes.HAL_JSON));
     }
 
     protected ResultActions getResources(String url, MultiValueMap parameters) throws Exception {

@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.restdocs.payload.RequestFieldsSnippet;
 import org.springframework.restdocs.payload.ResponseFieldsSnippet;
-import org.springframework.restdocs.snippet.Snippet;
 
 import java.time.LocalDateTime;
 
@@ -20,11 +19,17 @@ import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.li
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
 class EventControllerTest2 extends BaseControllerTest {
+
+    private static String EVENT_URL = "/api/events";
+    private static String EVENT_URL_WITH_ID = "/api/events/{id}";
+
+    private EventCreateUpdateDto fixtureOfEvent;
 
     @Autowired
     private AccountRepository accountRepository;
@@ -32,48 +37,9 @@ class EventControllerTest2 extends BaseControllerTest {
     @Autowired
     private EventRepository eventRepository;
 
-    private static String EVENT_URL = "/api/events";
-
     @BeforeEach
     void setUp() {
-        eventRepository.deleteAll();
-        accountRepository.deleteAll();
-    }
-
-
-    @DisplayName("입력값이 잘못된 경우 이벤트 생성 실패")
-    @Test
-    void createEvent_whenWrongInput_thenBadRequest() throws Exception {
-        EventCreateUpdateDto eventDto = EventCreateUpdateDto.builder()
-                .name(null)
-                .build();
-
-        postResource(EVENT_URL, eventDto)
-                .andExpect(status().isBadRequest())
-                .andDo(document("create-event-bad-request2",
-                        getErrorResponseSnippet()
-                ));
-    }
-
-    @DisplayName("입력값이 비어있는 경우에 에러가 발생하는 테스트")
-    @Test
-    void createEvent_whenEmptyInput_thenBadRequest() throws Exception {
-        EventCreateUpdateDto eventDto = EventCreateUpdateDto.builder().build();
-
-        postResource(EVENT_URL, eventDto)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("code").value(ErrorCode.INPUT_VALUE_INVALID.getCode()))
-                .andExpect(jsonPath("message").exists())
-                .andExpect(jsonPath("_links.index").exists())
-                .andDo(document("create-event-bad-request",
-                        getErrorResponseSnippet()
-                ));
-    }
-
-    @DisplayName("이벤트 등록 성공")
-    @Test
-    void createEvent_success() throws Exception {
-        EventCreateUpdateDto eventDto = EventCreateUpdateDto.builder()
+        fixtureOfEvent = EventCreateUpdateDto.builder()
                 .name("Spring seminal")
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2019, 9, 20, 0, 0))
@@ -86,6 +52,75 @@ class EventControllerTest2 extends BaseControllerTest {
                 .location("강남역 D2 startup factory")
                 .build();
 
+        eventRepository.deleteAll();
+        accountRepository.deleteAll();
+    }
+
+    @DisplayName("없는 이벤트를 조회 시 실패")
+    @Test
+    void readEvent_whenNoExistEvent_thenException() throws Exception {
+        int noExistEventId = 9999;
+
+        mockMvc.perform(get(EVENT_URL_WITH_ID, noExistEventId))
+                .andExpect(status().isNotFound())
+                .andDo(document("get-an-event-bad-request",
+                        getCustomErrorResponseSnippet()
+                ));
+    }
+
+    @DisplayName("이벤트 상세정보 보기 성공")
+    @Test
+    void readEvent_success() throws Exception {
+        Event event = generateEvent();
+
+        getResource(EVENT_URL_WITH_ID, event.getId())
+                .andExpect(jsonPath("name").exists())
+                .andExpect(jsonPath("id").exists())
+                .andDo(document("get-an-event",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("query-events").description("link to query events"),
+                                linkWithRel("profile").description("link to profile"),
+                                linkWithRel("update-account-event")
+                                        .description("link to update account an existing").optional()
+                        ),
+                        getResponseFieldsSnippet()
+                ));
+    }
+
+    @DisplayName("입력값이 잘못된 경우 이벤트 생성 실패")
+    @Test
+    void createEvent_whenWrongInput_thenBadRequest() throws Exception {
+        EventCreateUpdateDto eventDto = EventCreateUpdateDto.builder()
+                .name(null)
+                .build();
+
+        postResource(EVENT_URL, eventDto)
+                .andExpect(status().isBadRequest())
+                .andDo(document("create-event-bad-request",
+                        getErrorResponseSnippet()
+                ));
+    }
+
+    @DisplayName("입력값이 비어있는 경우 이벤트 생성 실패")
+    @Test
+    void createEvent_whenEmptyInput_thenBadRequest() throws Exception {
+        EventCreateUpdateDto eventDto = EventCreateUpdateDto.builder().build();
+
+        postResource(EVENT_URL, eventDto)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value(ErrorCode.INPUT_VALUE_INVALID.getCode()))
+                .andExpect(jsonPath("message").exists())
+                .andDo(document("create-event-bad-request-empty",
+                        getErrorResponseSnippet()
+                ));
+    }
+
+    @DisplayName("이벤트 등록 성공")
+    @Test
+    void createEvent_success() throws Exception {
+        EventCreateUpdateDto eventDto = fixtureOfEvent;
+
         postResource(EVENT_URL, eventDto)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
@@ -97,7 +132,7 @@ class EventControllerTest2 extends BaseControllerTest {
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("query-events").description("link to query events"),
                                 linkWithRel("profile").description("link to profile"),
-                                linkWithRel("updateAccount-event").description("link to updateAccount an existing")
+                                linkWithRel("update-account-event").description("link to updateAccount an existing")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("accept header"),
@@ -109,8 +144,16 @@ class EventControllerTest2 extends BaseControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                         ),
                         getResponseFieldsSnippet()
-                ))
-        ;
+                ));
+    }
+
+    private Event generateEvent() throws Exception {
+        String response = postResource(EVENT_URL, fixtureOfEvent)
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        return objectMapper.readValue(response, Event.class);
     }
 
     private RequestFieldsSnippet getRequestFieldsSnippet() {
@@ -147,17 +190,21 @@ class EventControllerTest2 extends BaseControllerTest {
         );
     }
 
-    private Snippet[] getErrorResponseSnippet() {
-        return new Snippet[]{links(
-                linkWithRel("index").description("link to index")
-        ),
-                responseFields(
-                        fieldWithPath("code").description("error code"),
-                        fieldWithPath("message").description("error message"),
-                        fieldWithPath("errors[].field").description("Invalid field name"),
-                        fieldWithPath("errors[].value").description("error custom description").optional(),
-                        fieldWithPath("errors[].reason").description("error details"),
-                        subsectionWithPath("_links").description("relation links")
-                )};
+    private ResponseFieldsSnippet getErrorResponseSnippet() {
+        return responseFields(
+                fieldWithPath("code").description("error code"),
+                fieldWithPath("message").description("error message"),
+                fieldWithPath("errors[].field").description("Invalid field name").optional(),
+                fieldWithPath("errors[].value").description("error custom description").optional(),
+                fieldWithPath("errors[].reason").description("error details").optional()
+        );
+    }
+
+    private ResponseFieldsSnippet getCustomErrorResponseSnippet() {
+        return responseFields(
+                fieldWithPath("code").description("error code"),
+                fieldWithPath("message").description("error message"),
+                fieldWithPath("errors").description("error details")
+        );
     }
 }

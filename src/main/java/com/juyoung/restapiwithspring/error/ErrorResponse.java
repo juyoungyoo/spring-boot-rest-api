@@ -23,4 +23,13 @@ class ErrorResponse {
         this.code = code;
         this.message = message;
     }
+
+    @Override
+    public String toString() {
+        return "ErrorResponse{" +
+                "code='" + code + '\'' +
+                ", message='" + message + '\'' +
+                ", errors=" + errors +
+                '}';
+    }
 }

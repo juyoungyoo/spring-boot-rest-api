@@ -3,7 +3,6 @@ package com.juyoung.restapiwithspring.events;
 
 import com.juyoung.restapiwithspring.accounts.Account;
 import com.juyoung.restapiwithspring.accounts.CurrentUser;
-import com.juyoung.restapiwithspring.common.ErrorsResource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -16,12 +15,11 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.Optional;
+import java.util.Objects;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -51,11 +49,26 @@ public class EventController {
         ControllerLinkBuilder selfLinkBuilder = linkTo(this.getClass()).slash(event.getId());
         URI createUri = selfLinkBuilder.toUri();
         EventResource resource = new EventResource(event);
-        resource.add(linkTo(EventController.class).withRel("query-events"));
         resource.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
-        resource.add(selfLinkBuilder.withRel("updateAccount-event"));
+        resource.add(selfLinkBuilder.withRel("update-account-event"));
 
         return ResponseEntity.created(createUri).body(resource);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity readEvent(@PathVariable int id,
+                                    @CurrentUser Account account) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(NotFoundException::new);
+
+        EventResource resource = new EventResource(event);
+        resource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
+        if (Objects.nonNull(account) && event.isMatchManager(account)) {
+            resource.add(linkTo(EventController.class)
+                    .slash(event.getId())
+                    .withRel("update-account-event"));
+        }
+        return ResponseEntity.ok(resource);
     }
 
     @PutMapping("/{id}")
@@ -85,24 +98,4 @@ public class EventController {
         }
         return ResponseEntity.ok(pagedResources);
     }
-
-    @GetMapping("/{id}")
-    public ResponseEntity getEvent(@PathVariable int id, @CurrentUser Account account) {
-        Optional<Event> optionalEvent = eventRepository.findById(id);
-        if (!optionalEvent.isPresent()) {
-            return notFoundResponse();
-        }
-        Event event = optionalEvent.get();
-        EventResource eventResource = new EventResource(event);
-        eventResource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
-        if (account != null && event.getManager().equals(account)) {
-            eventResource.add(linkTo(EventController.class).slash(event.getId()).withRel("updateAccount-event"));
-        }
-        return ResponseEntity.ok(eventResource);
-    }
-
-    private ResponseEntity notFoundResponse() {
-        return ResponseEntity.notFound().build();
-    }
-
 }

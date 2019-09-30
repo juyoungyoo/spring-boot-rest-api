@@ -74,6 +74,25 @@ class Event {
         updateStatus();
     }
 
+    boolean isMatchManager(Account manager) {
+        return manager.equals(manager);
+    }
+
+    void update(Event event) {
+        this.name = event.name;
+        this.description = event.description;
+        this.beginEnrollmentDateTime = event.beginEnrollmentDateTime;
+        this.closeEnrollmentDateTime = event.closeEnrollmentDateTime;
+        this.beginEventDateTime = event.closeEnrollmentDateTime;
+        this.endEventDateTime = event.endEventDateTime;
+        this.location = event.location;
+        this.basePrice = event.basePrice;
+        this.maxPrice = event.maxPrice;
+        this.limitOfEnrollment = event.limitOfEnrollment;
+
+        updateStatus();
+    }
+
     void updateStatus() {
         if (this.basePrice > 0 || this.maxPrice > 0) {
             this.free = false;

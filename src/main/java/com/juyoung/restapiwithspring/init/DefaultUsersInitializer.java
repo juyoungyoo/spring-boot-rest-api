@@ -2,44 +2,47 @@ package com.juyoung.restapiwithspring.init;
 
 import com.juyoung.restapiwithspring.accounts.Account;
 import com.juyoung.restapiwithspring.accounts.AccountService;
+import com.juyoung.restapiwithspring.accounts.Password;
 import com.juyoung.restapiwithspring.accounts.RoleType;
 import com.juyoung.restapiwithspring.configs.AppSecurityProperties;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
+@AllArgsConstructor
 public class DefaultUsersInitializer implements ApplicationRunner {
 
-    @Autowired
-    AccountService accountService;
-    @Autowired
-    AppSecurityProperties appSecurityProperties;
+    final AccountService accountService;
+    final AppSecurityProperties appSecurityProperties;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
-        Set<RoleType> roles = Arrays.stream(RoleType.values()).collect(Collectors.toSet());
-
+    public void run(ApplicationArguments args) {
         Account admin = Account.builder()
                 .email(appSecurityProperties.getAdminUsername())
                 .password(appSecurityProperties.getAdminPassword())
-                .roles(roles)
+                .roles(new HashSet<>(Collections.singletonList(RoleType.ADMIN)))
                 .build();
 
         Account user = Account.builder()
                 .email(appSecurityProperties.getUserUsername())
                 .password(appSecurityProperties.getUserPassword())
-                .roles(new HashSet<>(Arrays.asList(RoleType.USER)))
+                .roles(new HashSet<>(Collections.singletonList(RoleType.USER)))
                 .build();
 
         accountService.saveAccount(admin);
-        accountService.saveAccount(user);
-    }
+        log.debug("Register ADMIN : {}", admin);
 
+        accountService.saveAccount(user);
+        log.debug("Register USER : {}", user);
+    }
 }

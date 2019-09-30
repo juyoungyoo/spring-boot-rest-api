@@ -25,16 +25,14 @@ public class ErrorExceptionController {
             BindException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorsResource2 handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+    protected ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         final List<FieldError> fieldErrors = getFieldErrors(exception.getBindingResult());
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
+        return ErrorResponse.builder()
                 .code(ErrorCode.INPUT_VALUE_INVALID.getCode())
                 .message(ERROR_MESSAGE_OF_DEFAULT)
                 .errors(fieldErrors)
                 .build();
-
-        return new ErrorsResource2(errorResponse);
     }
 
     @ExceptionHandler
