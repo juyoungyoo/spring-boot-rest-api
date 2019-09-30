@@ -64,11 +64,6 @@ class Event {
     @Builder.Default
     private EventStatus eventStatus = EventStatus.DRAFT;
 
-    //todo : delete
-    void updateAccount(Account currentUser) {
-        return;
-    }
-
     void create(Account currentUser) {
         this.manager = currentUser;
         updateStatus();

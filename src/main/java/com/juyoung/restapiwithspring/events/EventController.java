@@ -5,7 +5,6 @@ import com.juyoung.restapiwithspring.accounts.Account;
 import com.juyoung.restapiwithspring.accounts.CurrentUser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -29,15 +28,9 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 @Slf4j
 public class EventController {
 
-    private final EventRepository eventRepository;
-
     private final EventConverter eventConverter;
 
     private final EventService eventService;
-
-    private final ModelMapper modelMapper;
-
-    private final EventValidator eventValidator;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -55,11 +48,25 @@ public class EventController {
         return ResponseEntity.created(createUri).body(resource);
     }
 
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity queryEvents(@CurrentUser Account account,
+                                      Pageable pageable,
+                                      PagedResourcesAssembler<Event> assembler) {
+        Page<Event> events = eventService.query(pageable);
+
+        PagedResources pagedResources = assembler.toResource(events, e -> new EventResource(e));
+        pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
+        if (Objects.nonNull(account)) {
+            pagedResources.add(linkTo(this.getClass()).withRel("create-event"));
+        }
+        return ResponseEntity.ok(pagedResources);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity readEvent(@PathVariable int id,
                                     @CurrentUser Account account) {
-        Event event = eventRepository.findById(id)
-                .orElseThrow(NotFoundException::new);
+        Event event = eventService.read(id);
 
         EventResource resource = new EventResource(event);
         resource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
@@ -76,26 +83,10 @@ public class EventController {
     public ResponseEntity updateEvent(@PathVariable int id,
                                       @RequestBody @Valid EventCreateUpdateDto eventDto,
                                       @CurrentUser Account account) {
-        Event event = eventConverter.convert(eventDto);
-        event.updateAccount(account);
-        eventService.update(id, event);
+        Event event = eventService.update(id, eventDto.toEntity(), account);
 
         EventResource eventResource = new EventResource(event);
         eventResource.add(new Link("/docs/index.html#resources-events-updateAccount").withRel("profile"));
         return ResponseEntity.ok(eventResource);
-    }
-
-    @GetMapping
-    public ResponseEntity queryEvents(@CurrentUser Account account,
-                                      Pageable pageable,
-                                      PagedResourcesAssembler assembler) {
-        Page<Event> page = eventRepository.findAll(pageable);
-
-        PagedResources pagedResources = assembler.toResource(page, e -> new EventResource((Event) e));
-        pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
-        if (account != null) {
-            pagedResources.add(linkTo(EventController.class).withRel("create-event"));
-        }
-        return ResponseEntity.ok(pagedResources);
     }
 }

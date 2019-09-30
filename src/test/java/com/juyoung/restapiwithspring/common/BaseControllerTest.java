@@ -92,6 +92,7 @@ public class BaseControllerTest {
 
     protected ResultActions getResources(String url, MultiValueMap parameters) throws Exception {
         return mockMvc.perform(RestDocumentationRequestBuilders.get(url)
+                .header(HttpHeaders.AUTHORIZATION, "bearer " + getAccessToken(false))
                 .params(parameters)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON));
@@ -105,8 +106,9 @@ public class BaseControllerTest {
                 .content(objectMapper.writeValueAsString(body)));
     }
 
-    protected <T> ResultActions putResource(String url, T body) throws Exception {
-        return mockMvc.perform(RestDocumentationRequestBuilders.put(url)
+    protected <T> ResultActions putResource(T body, String url, Object... pathVariables) throws Exception {
+        return mockMvc.perform(RestDocumentationRequestBuilders.put(url, pathVariables)
+                .header(HttpHeaders.AUTHORIZATION, "bearer " + getAccessToken(false))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(body)));
@@ -114,12 +116,12 @@ public class BaseControllerTest {
 
     protected <T> ResultActions deleteResource(String url, T body) throws Exception {
         return mockMvc.perform(delete(url)
-                .content(objectMapper.writeValueAsString(body))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON_UTF8));
+                .accept(MediaTypes.HAL_JSON));
     }
 
-    protected String getBearerToken() throws Exception {
+    private String getBearerToken() throws Exception {
         return "bearer " + getAccessToken(true);
     }
 
