@@ -2,33 +2,146 @@ package com.juyoung.restapiwithspring.common;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
+import com.juyoung.restapiwithspring.accounts.Account;
+import com.juyoung.restapiwithspring.accounts.AccountService;
+import com.juyoung.restapiwithspring.accounts.RoleType;
+import com.juyoung.restapiwithspring.configs.AppSecurityProperties;
+import jdk.nashorn.internal.ir.annotations.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.context.WebApplicationContext;
 
-@RunWith(SpringRunner.class)
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
+@Ignore
+@ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @AutoConfigureRestDocs
 @Import(RestDocsConfiguration.class)
-@Ignore
 public class BaseControllerTest {
 
-    /* @mockMvc :  웹 서버를 띄우지 않고 Spring MVC ( DispatherServlet )가 처리하는 과정 확인이 가능하여 '컨트롤러 테스트'로 많이 사용한다. */
     @Autowired
-    protected MockMvc mockMvc;    // mocking : 가짜 요청/응답 확인가능 ( 속도 : 웹 구동 < mockMvc < 단위 테스트 )
+    protected MockMvc mockMvc;
+
     @Autowired
-    protected ObjectMapper objectMapper;  // spring boot 자동 매핑 ( bean )
+    protected ObjectMapper objectMapper;
+
     @Autowired
     protected ModelMapper modelMapper;
 
+    @Autowired
+    private WebApplicationContext context;
+
+    @Autowired
+    private FilterChainProxy filterChainProxy;
+
+    @Autowired
+    private AccountService accountService;
+
+    @Autowired
+    private AppSecurityProperties appSecurityProperties;
+
+    @BeforeEach
+    public void setUp(RestDocumentationContextProvider restDocumentation) {
+        this.mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .addFilter(filterChainProxy)
+                .apply(documentationConfiguration(restDocumentation))
+                .build();
+    }
+
+    protected ResultActions getResource(String url) throws Exception {
+        return mockMvc.perform(RestDocumentationRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON_UTF8));
+    }
+
+    protected ResultActions getResources(String url, MultiValueMap parameters) throws Exception {
+        return mockMvc.perform(RestDocumentationRequestBuilders.get(url)
+                .params(parameters)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON));
+    }
+
+    protected <T> ResultActions postResource(String url, T body) throws Exception {
+        return mockMvc.perform(RestDocumentationRequestBuilders.post(url)
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(body)));
+    }
+
+    protected <T> ResultActions putResource(String url, T body) throws Exception {
+        return mockMvc.perform(RestDocumentationRequestBuilders.put(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(body)));
+    }
+
+    protected <T> ResultActions deleteResource(String url, T body) throws Exception {
+        return mockMvc.perform(delete(url)
+                .content(objectMapper.writeValueAsString(body))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON_UTF8));
+    }
+
+    protected String getBearerToken() throws Exception {
+        return "bearer " + getAccessToken(true);
+    }
+
+    private String getAccessToken(boolean needToAccount) throws Exception {
+        if (needToAccount) {
+            createAccount();
+        }
+
+        ResultActions perform = mockMvc.perform(post("/oauth/token")
+                .with(httpBasic(appSecurityProperties.getClientId(), appSecurityProperties.getClientSecret())) // basic auth 생성
+                .param("username", appSecurityProperties.getUserUsername())
+                .param("password", appSecurityProperties.getUserPassword())
+                .param("grant_type", "password"));
+
+        String response = perform.andReturn().getResponse().getContentAsString();
+        Jackson2JsonParser parser = new Jackson2JsonParser();
+        return parser.parseMap(response).get("access_token").toString();
+    }
+
+    private Account createAccount() {
+        return this.accountService.saveAccount(getAccount());
+    }
+
+    private Account getAccount() {
+        return Account.builder()
+                .email(appSecurityProperties.getUserUsername())
+                .password(appSecurityProperties.getUserPassword())
+                .roles(Arrays.stream(RoleType.values()).collect(Collectors.toSet()))
+                .build();
+    }
 }

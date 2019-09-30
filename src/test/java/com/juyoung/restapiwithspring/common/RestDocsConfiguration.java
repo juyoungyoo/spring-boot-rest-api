@@ -15,5 +15,4 @@ public class RestDocsConfiguration {
                 .withRequestDefaults(prettyPrint())
                 .withResponseDefaults(prettyPrint());
     }
-
 }

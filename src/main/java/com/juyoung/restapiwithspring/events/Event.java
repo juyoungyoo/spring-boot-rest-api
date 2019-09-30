@@ -4,55 +4,110 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.juyoung.restapiwithspring.accounts.Account;
 import com.juyoung.restapiwithspring.accounts.AccountSerializer;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
-@Builder @NoArgsConstructor @AllArgsConstructor
-@EqualsAndHashCode(of = {"id", "name"}) // 객체간의 엔티티를 참조할 때 상호참조 때문에 해당하는 필드는 사용하지 X
-public class Event {
+@Getter
+@Builder
+@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@EqualsAndHashCode(of = {"id", "name"})
+class Event {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(length = 20)
     private String name;
+
+    @Column(length = 200)
     private String description;
+
     private LocalDateTime beginEnrollmentDateTime;
+
     private LocalDateTime closeEnrollmentDateTime;
+
     private LocalDateTime beginEventDateTime;
+
     private LocalDateTime endEventDateTime;
-    private String location; // (optional) 이게 없으면 온라인 모임
-    private int basePrice; // (optional)
-    private int maxPrice;
+
     private int limitOfEnrollment;
+
+    private String location; // (optional) 이게 없으면 온라인 모임
+
     private boolean offline;
+
+    private int basePrice; // (optional)
+
+    private int maxPrice;
+
     private boolean free;
+
+    @CreatedDate
+    private LocalDateTime createdDateTime;
+
+    @LastModifiedDate
+    private LocalDateTime lastModifiedDateTime;
+
     @ManyToOne
     @JsonSerialize(using = AccountSerializer.class)
     private Account manager;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private EventStatus eventStatus = EventStatus.DRAFT;
 
-    public void update() {
-        // Update free
-        if(this.basePrice == 0 && this.maxPrice == 0){
-            this.free = true;
-        }else{
+    //todo : delete
+    void updateAccount(Account currentUser) {
+        return;
+    }
+
+    void create(Account currentUser) {
+        this.manager = currentUser;
+        updateStatus();
+    }
+
+    void updateStatus() {
+        if (this.basePrice > 0 || this.maxPrice > 0) {
             this.free = false;
+        } else {
+            this.free = true;
         }
 
-        // Update Online
-        if(this.location == null || this.location.trim().isEmpty()){
+        if (this.location == null || this.location.trim().isEmpty()) {
             this.offline = false;
-        }else{
+        } else {
             this.offline = true;
         }
     }
 
-    public void update(Account currentUser){
-        this.update();
-        this.manager = currentUser;
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", beginEnrollmentDateTime=" + beginEnrollmentDateTime +
+                ", closeEnrollmentDateTime=" + closeEnrollmentDateTime +
+                ", beginEventDateTime=" + beginEventDateTime +
+                ", endEventDateTime=" + endEventDateTime +
+                ", limitOfEnrollment=" + limitOfEnrollment +
+                ", location='" + location + '\'' +
+                ", offline=" + offline +
+                ", basePrice=" + basePrice +
+                ", maxPrice=" + maxPrice +
+                ", free=" + free +
+                ", createdDateTime=" + createdDateTime +
+                ", lastModifiedDateTime=" + lastModifiedDateTime +
+                ", manager=" + manager +
+                ", eventStatus=" + eventStatus +
+                '}';
     }
 }

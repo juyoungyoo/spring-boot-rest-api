@@ -26,7 +26,7 @@ public class EventValidator implements Validator {
 
     private void validatePrice(Event event,
                                Errors errors) {
-        if (event.getBasePrice() > event.getMaxPrice() && event.getMaxPrice() > 0) {
+        if ((event.getBasePrice() > event.getMaxPrice()) && (event.getMaxPrice() > 0)) {
             errors.rejectValue("basePrice", "wrongCode", "BasePrice is wrong.");
             errors.rejectValue("maxPrice", "wrongCode", "MaxPrice is wrong.");
             errors.reject("wrongPrices", "Prices is wrong.");
@@ -62,5 +62,4 @@ public class EventValidator implements Validator {
             errors.rejectValue("endEventDateTime", "wrongCode", "EndEventDateTime  is wrong.");
         }
     }
-
 }

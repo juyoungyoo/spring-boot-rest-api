@@ -4,6 +4,8 @@ package com.juyoung.restapiwithspring.events;
 import com.juyoung.restapiwithspring.accounts.Account;
 import com.juyoung.restapiwithspring.accounts.CurrentUser;
 import com.juyoung.restapiwithspring.common.ErrorsResource;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +16,6 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,52 +24,51 @@ import java.net.URI;
 import java.util.Optional;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
-@Controller
-@RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON_UTF8_VALUE)   // producs : response
+@RestController
+@RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON_UTF8_VALUE)
+@AllArgsConstructor
+@Slf4j
 public class EventController {
 
     private final EventRepository eventRepository;
+
+    private final EventConverter eventConverter;
+
+    private final EventService eventService;
+
     private final ModelMapper modelMapper;
+
     private final EventValidator eventValidator;
 
-    public EventController(EventRepository eventRepository,
-                           ModelMapper modelMapper,
-                           EventValidator eventValidator) {
-        this.eventRepository = eventRepository;
-        this.modelMapper = modelMapper;
-        this.eventValidator = eventValidator;
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity createEvent(@RequestBody @Valid EventCreateUpdateDto eventDto,
+                                      @CurrentUser Account currentUser) {
+
+        Event event = eventService.create(currentUser, eventDto.toEntity());
+
+        ControllerLinkBuilder selfLinkBuilder = linkTo(this.getClass()).slash(event.getId());
+        URI createUri = selfLinkBuilder.toUri();
+        EventResource resource = new EventResource(event);
+        resource.add(linkTo(EventController.class).withRel("query-events"));
+        resource.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
+        resource.add(selfLinkBuilder.withRel("updateAccount-event"));
+
+        return ResponseEntity.created(createUri).body(resource);
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity updateEvent(@PathVariable int id,
-                                      @RequestBody @Valid EventDto.CreateOrUpdate eventDto, Errors errors,
+                                      @RequestBody @Valid EventCreateUpdateDto eventDto,
                                       @CurrentUser Account account) {
-        if (errors.hasErrors()) {
-            return badRequestResponse(errors);
-        }
+        Event event = eventConverter.convert(eventDto);
+        event.updateAccount(account);
+        eventService.update(id, event);
 
-        Optional<Event> byId = eventRepository.findById(id);
-        if (!byId.isPresent()) {
-            return notFoundResponse();
-        }
-
-        Event event = byId.get();
-        if(!event.getManager().equals(account)){
-            return new ResponseEntity(HttpStatus.FORBIDDEN);
-        }
-
-        modelMapper.map(eventDto, event);
-        event.update();
-        eventValidator.validate(event, errors);
-        if(errors.hasErrors()){
-            return ResponseEntity.badRequest().body(new ErrorsResource(errors));
-        }
-        Event newEvent = eventRepository.save(event);
-
-        EventResource eventResource = new EventResource(newEvent);
-        eventResource.add(new Link("/docs/index.html#resources-events-update").withRel("profile"));
+        EventResource eventResource = new EventResource(event);
+        eventResource.add(new Link("/docs/index.html#resources-events-updateAccount").withRel("profile"));
         return ResponseEntity.ok(eventResource);
     }
 
@@ -95,43 +95,14 @@ public class EventController {
         Event event = optionalEvent.get();
         EventResource eventResource = new EventResource(event);
         eventResource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
-        if(account != null && event.getManager().equals(account)){
-            eventResource.add(linkTo(EventController.class).slash(event.getId()).withRel("update-event"));
+        if (account != null && event.getManager().equals(account)) {
+            eventResource.add(linkTo(EventController.class).slash(event.getId()).withRel("updateAccount-event"));
         }
         return ResponseEntity.ok(eventResource);
-    }
-
-    @PostMapping
-    public ResponseEntity createEvent(@RequestBody @Valid EventDto.CreateOrUpdate eventDto, Errors errors,
-                                      @CurrentUser Account currentUser) {    // errors : java bean spec을 따르지 않는다.
-        if (errors.hasErrors()) {
-            return badRequestResponse(errors);
-        }
-        Event event = modelMapper.map(eventDto, Event.class);
-        event.update(currentUser);
-
-        eventValidator.validate(event, errors);
-        if (errors.hasErrors()) {
-            return badRequestResponse(errors);
-        }
-
-        Event newEvent = this.eventRepository.save(event);
-
-        ControllerLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(newEvent.getId());
-        URI createUri = selfLinkBuilder.toUri();
-
-        EventResource resource = new EventResource(event);
-        resource.add(linkTo(EventController.class).withRel("query-events"));
-        resource.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
-        resource.add(selfLinkBuilder.withRel("update-event"));
-        return ResponseEntity.created(createUri).body(resource);
     }
 
     private ResponseEntity notFoundResponse() {
         return ResponseEntity.notFound().build();
     }
 
-    private ResponseEntity badRequestResponse(Errors errors) {
-        return ResponseEntity.badRequest().body(new ErrorsResource(errors));
-    }
 }

@@ -2,8 +2,8 @@ package com.juyoung.restapiwithspring.configs;
 
 import com.juyoung.restapiwithspring.accounts.AccountService;
 import com.juyoung.restapiwithspring.common.BaseControllerTest;
-import com.juyoung.restapiwithspring.common.TestDescription;
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -16,13 +16,13 @@ public class AuthServerConfigTest extends BaseControllerTest {
 
     @Autowired
     AppSecurityProperties appSecurityProperties;
+
     @Autowired
     AccountService accountService;
 
+    @DisplayName("인증 토큰을 발급 받는 테스트")
     @Test
-    @TestDescription("인증 토큰을 발급 받는 테스트") // Grant type : password and refresh token
-    public void getAuthToken() throws Exception {
-        // third party app이기 때문에, facebook나 google등 서버에게 redirection 발생
+    void getAuthToken() throws Exception {
         mockMvc.perform(post("/oauth/token")
                         .with(httpBasic(appSecurityProperties.getClientId(), appSecurityProperties.getClientSecret())) // basic auth 생성
                         .param("username", appSecurityProperties.getUserUsername())

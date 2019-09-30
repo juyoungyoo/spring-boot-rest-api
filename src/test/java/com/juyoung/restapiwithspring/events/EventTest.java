@@ -1,80 +1,50 @@
 package com.juyoung.restapiwithspring.events;
 
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(JUnitParamsRunner.class)
-public class EventTest {
+class EventTest {
 
-    @Test
-    public void builder() {
-        Event event = Event.builder()
-                .name("inflearn Spring REST API")
-                .description("REST API developer with Spring")
-                .build();
-        assertThat(event).isNotNull();
-    }
-
-    @Test
-    public void javaBean() {
+    @DisplayName("이벤트 참가비가 없을 시 무료")
+    @ParameterizedTest
+    @CsvSource({
+            "0, 0, true",
+            "100, 0, false",
+            "0, 100, false",
+    })
+    void updateStatus_whenPriceIsZero_thenIsFree(int basePrice, int maxPrice, boolean expectedIsFree) {
         // given
-        String name = "event";
-        String description = "Spring";
-
-        // when
-        Event event = new Event();
-        event.setName(name);
-        event.setDescription(description);
-
-        // then
-        assertThat(event.getName()).isEqualTo(name);
-        assertThat(event.getDescription()).isEqualTo(description);
-
-    }
-
-    @Test
-    @Parameters
-//    @Parameters(method ="parametersForTestFree")
-    public void testFree(int basePrice, int maxPrice, boolean isFree) {
         Event event = Event.builder()
                 .basePrice(basePrice)
                 .maxPrice(maxPrice)
                 .build();
-        event.update();
-//        assertThat(event.isFree()).isTrue();
-        assertThat(event.isFree()).isEqualTo(isFree);
-    }
-    // prefix : paramtersFor
-    private Object[] parametersForTestFree(){
-        return new Object[]{
-            new Object[]{0, 0, true},
-            new Object[]{100, 0, false},
-            new Object[]{0, 100, false}
-        };
+
+        // when
+        event.updateStatus();
+
+        // then
+        assertThat(event.isFree()).isEqualTo(expectedIsFree);
     }
 
-    @Test
-    @Parameters
-    public void testOnline(String location, boolean isOffline) {
+    // todo : null check
+    @DisplayName("위치값이 없을 시 online 이며 아닐 시 offline")
+    @ParameterizedTest
+    @CsvSource({
+            "강남역 네이버 D2 스타텁 팩토리, true",
+            "' ', false",
+    })
+    void updateStatus_whenLocationIsNull_thenOnline(String location, boolean expectedOfOffline) {
         // Given
         Event event = Event.builder()
                 .location(location)
                 .build();
         // When
-        event.update();
-        // Then
-        assertThat(event.isOffline()).isEqualTo(isOffline);
-    }
+        event.updateStatus();
 
-    private Object[] parametersForTestOnline(){
-        return new Object[]{
-                new Object[]{"강남역 네이버 D2 스타텁 팩토리", true},
-                new Object[]{null, false},
-                new Object[]{"      ", false}
-        };
+        // Then
+        assertThat(event.isOffline()).isEqualTo(expectedOfOffline);
     }
 }
