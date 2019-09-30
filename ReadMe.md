@@ -1,54 +1,65 @@
-# Spring 기반 REST API 개발
-[![Build Status](https://travis-ci.org/juyoungyoo/spring-boot-rest-api.svg?branch=master)](https://travis-ci.org/juyoungyoo/spring-boot-rest-api)
-
-- Spring Boot
-- Spring Framework
-- JPA
-- HATEOAS
-- REST Docs
-
-### 목표
-- CURD Event REST API 개발
-- Self-Describtive Message, HATEOAS 만족하는 REST API 개발
-- TDD 개발
-- Spring Security OAuth2으로 인증
+# Event REST API [![Build Status](https://travis-ci.org/juyoungyoo/spring-boot-rest-api.svg?branch=master)](https://travis-ci.org/juyoungyoo/spring-boot-rest-api)
 
 ### 개발환경
-- JDK 8
-- Spring Framework 2.1.3.RELEASE
-- Web
+- JDK 1.8
+- SpringBoot 2.1.3.RELEASE
+- Gradle 5.2.1  
 - JPA
+
+- PostgreSQL(dev)
+- H2 (local, test)
+
+- Spring Security
+- Spring HATEOAS
+- Spring AOP
+- Spring RestDocs
+
 - Lombok
-- H2
-- PostgreSQL
-- Gradle 5.2.1
+- Embedded Tomcat
+- TEST : JUnit 5, MockMVC, AssertJ
 
-## TODO 
-- [ ] docker-compose
+### 목표
+- Spring Security OAuth2으로 인증 처리
+- Self-Describtive Message, HATEOAS 만족하는 REST API 개발
+- 성능 확인을 위해 모든 요청에 대하여 응답까지 걸리는 시간을 log 로 기록
+fs
+### DB modeling
+// todo 
+![DB modeling](./asserts/DB_ERD.png)
 
+### 폴더 구조
+```
+.
++-- configs
++-- index
++-- accounts
++-- events
++-- error
++-- global
+    +-- converter
 
-## 
-authentication manager 주요 interface
-1. userdetailservice
-2. password encoder
-- basic authentication : header에 authentication + basic + username + password encoding한 값을 가지고 
-입력받은 username의 password를 읽어온 password와 사용자가 입력한 값이 매칭하는지 password encoder로 검사한다.
-- 확인 후 `security context holder`에 저장을 한다.
-
-## Spring security oAuth2.0
-- Authorization Server : OAuth2 토큰 발행, 인증 (/oauth/token, /oauth/authorize), 우선순위 (Order: 0)
-- Resource Server : 리소스 요청, 인증 처리(OAuth token 검사), 우선순위  (Order: 3)
-- SecurityConfig : Auth + Resource 공통으로 사용되는 설정 
-
-## 권한을 확인한다.
-1. accessdecisionManager : user의 role로 확인한다. 
- 
-## spring security Oauth2.0
-- AuthorizationServer : OAuth2 token 발행(/oauth/token) 및 토큰 인증(/oauth/authorize)
-    - Oder 0 ( Resource server보다 우선순위가 높다. )
-- ResourceServer : resource 요청 인증 처리 (Oauth 2 토큰 검사) 
-    - Oder 3 
-- 공통설정 ( spring security config )
+```
   
- 
+----
 
+#### 암호화
+비밀번호 암호화는 bcrypt 암호화를 사용
+
+#### 예외처리
+비즈니스 로직에 집중하기 위해 Exception 발생 시, ControllerAdvice 으로 공통화 처리
+ 
+#### 로깅
+- 모든 요청의 대한 응답 시간은 Spring AOP로 처리
+- 로그 파일 위치 : `./logs`
+
+#### 문서화
+테스트 코드 기반으로 만들어 주기 때문에 테스트 코드가 강제된다는 장점이 있는 RestDocs 사용      
+[참고](./docs/index.html)
+
+#### 테스트 커버리지
+![test coverage](./asserts/coverage.png)
+
+#### 샘플 
+![asciidoc-example](./asserts/asciidoc-example.png)
+
+![asciidoc-example-2](./asserts/asciidoc-example-2.png)
