@@ -1,10 +1,8 @@
 package com.juyoung.restapiwithspring.accounts;
 
-import org.hamcrest.Matchers;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,39 +10,41 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
-public class AccountServiceTest {
+class AccountServiceTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     @Autowired
     AccountService accountService;
+
     @Autowired
     AccountRepository accountRepository;
+
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @DisplayName("계정 등록 성공")
     @Test
-    public void findByUsername() {
+    void findByUsername_success() {
         String username = "juyoung@email.com";
-        String pass = "pass";
+        String pass = "pass1";
 
         Account account = Account.builder()
                 .email(username)
                 .password(pass)
                 .roles(Arrays.stream(RoleType.values()).collect(Collectors.toSet()))
                 .build();
-        this.accountService.saveAccount(account);
+
+        accountService.signIn(account);
 
         UserDetailsService userDetailsService = accountService;
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -52,33 +52,12 @@ public class AccountServiceTest {
         assertThat(passwordEncoder.matches(pass, userDetails.getPassword())).isTrue();
     }
 
-    /*  예외 테스트 3가지   */
+    @DisplayName("없는 계정일 경우 exception")
     @Test
-    public void findByUserNameFail() {
+    void findByUserName_whenNotExistUser_thenException() {
         String username = "nonEmail@email.com";
-        try{
-            accountService.loadUserByUsername(username);
-            fail("supposed to be failed");
-        }catch (UsernameNotFoundException e){
-            assertThat(e instanceof UsernameNotFoundException).isTrue();
-            assertThat(e.getMessage()).containsSequence(username);
-        }
-    }
 
-    @Test(expected = UsernameNotFoundException.class)
-    public void findByUserNameFail_expected_method() {
-        String username = "nonEmail@email.com";
-        accountService.loadUserByUsername(username);
-    }
-
-    @Test
-    public void findByUserNameFail_jUnitRuleTest() {
-        // Expected
-        String username = "random@email.com";
-        expectedException.expect(UsernameNotFoundException.class);
-        expectedException.expectMessage(Matchers.containsString(username));
-
-        // When
-        accountService.loadUserByUsername(username);
+        assertThatExceptionOfType(UsernameNotFoundException.class)
+                .isThrownBy(() -> accountService.loadUserByUsername(username));
     }
 }

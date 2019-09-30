@@ -142,7 +142,7 @@ public class BaseControllerTest {
     }
 
     private Account createAccount() {
-        return this.accountService.saveAccount(getAccount());
+        return this.accountService.signIn(getAccount());
     }
 
     private Account getAccount() {

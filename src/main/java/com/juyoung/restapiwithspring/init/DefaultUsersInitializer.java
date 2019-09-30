@@ -39,10 +39,10 @@ public class DefaultUsersInitializer implements ApplicationRunner {
                 .roles(new HashSet<>(Collections.singletonList(RoleType.USER)))
                 .build();
 
-        accountService.saveAccount(admin);
+        accountService.signIn(admin);
         log.debug("Register ADMIN : {}", admin);
 
-        accountService.saveAccount(user);
+        accountService.signIn(user);
         log.debug("Register USER : {}", user);
     }
 }

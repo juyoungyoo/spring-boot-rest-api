@@ -23,7 +23,7 @@ public class AccountService implements UserDetailsService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    public Account saveAccount(Account account){
+    public Account signIn(Account account){
         account.setPassword(this.passwordEncoder.encode(account.getPassword()));
         return accountRepository.save(account);
     }
