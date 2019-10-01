@@ -40,7 +40,7 @@ class AccountServiceTest {
 
         Account account = Account.builder()
                 .email(username)
-                .password(pass)
+                .password(Password.of(pass))
                 .roles(Arrays.stream(RoleType.values()).collect(Collectors.toSet()))
                 .build();
 

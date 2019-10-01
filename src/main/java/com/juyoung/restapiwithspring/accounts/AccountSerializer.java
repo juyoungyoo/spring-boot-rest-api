@@ -8,6 +8,7 @@ import java.io.IOException;
 
 // object mapper @jsonComponent
 public class AccountSerializer extends JsonSerializer<Account> {
+
     @Override
     public void serialize(Account value,
                           JsonGenerator gen,

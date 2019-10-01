@@ -1,17 +1,16 @@
 package com.juyoung.restapiwithspring.accounts;
 
-// database keyword에 user존재 : users등으로 다른이름을 사용
-
 import lombok.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.util.Set;
 
+@Getter
 @Entity
-@Getter @Setter
-@EqualsAndHashCode(of = "id")
 @Builder
-@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Account {
 
@@ -21,11 +20,16 @@ public class Account {
     @Column(unique = true)
     private String email;
 
-    private String password;
+    @Embedded
+    private Password password;
 
-    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(value = EnumType.STRING)
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<RoleType> roles;
+
+    void encodePassword(PasswordEncoder passwordEncoder) {
+        password.encode(passwordEncoder);
+    }
 
     @Override
     public String toString() {

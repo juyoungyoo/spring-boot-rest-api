@@ -5,11 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juyoung.restapiwithspring.accounts.Account;
 import com.juyoung.restapiwithspring.accounts.AccountService;
 import com.juyoung.restapiwithspring.accounts.RoleType;
+import com.juyoung.restapiwithspring.accounts.Password;
 import com.juyoung.restapiwithspring.configs.AppSecurityProperties;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -53,9 +53,6 @@ public class BaseControllerTest {
 
     @Autowired
     protected ObjectMapper objectMapper;
-
-    @Autowired
-    protected ModelMapper modelMapper;
 
     @Autowired
     private WebApplicationContext context;
@@ -143,7 +140,7 @@ public class BaseControllerTest {
     private Account getAccount() {
         return Account.builder()
                 .email(appSecurityProperties.getUserUsername())
-                .password(appSecurityProperties.getUserPassword())
+                .password(Password.of(appSecurityProperties.getUserPassword()))
                 .roles(Arrays.stream(RoleType.values()).collect(Collectors.toSet()))
                 .build();
     }
