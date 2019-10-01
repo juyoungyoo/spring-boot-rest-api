@@ -34,6 +34,4 @@ public class AccountService implements UserDetailsService {
                 .orElseThrow(()-> new UsernameNotFoundException(username));
         return new AccountAdapter(account);
     }
-
-
 }
