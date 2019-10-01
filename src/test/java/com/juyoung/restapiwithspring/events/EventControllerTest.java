@@ -71,8 +71,8 @@ class EventControllerTest extends BaseControllerTest {
 
         getResources(EVENT_URL, parameters)
                 .andDo(print())
-                .andExpect(jsonPath("_embedded.eventList[0].id").value(lastData.getId()))
-                .andExpect(jsonPath("_embedded.eventList.length()").value(10))
+                .andExpect(jsonPath("_embedded.eventResponseList[0].id").value(lastData.getId()))
+                .andExpect(jsonPath("_embedded.eventResponseList.length()").value(10))
                 .andExpect(jsonPath("page").exists())
                 .andDo(document("query-events",
                         requestParameters(

@@ -89,17 +89,9 @@ class Event {
     }
 
     void updateStatus() {
-        if (this.basePrice > 0 || this.maxPrice > 0) {
-            this.free = false;
-        } else {
-            this.free = true;
-        }
+        this.free = (this.basePrice <= 0) && (this.maxPrice <= 0);
 
-        if (this.location == null || this.location.trim().isEmpty()) {
-            this.offline = false;
-        } else {
-            this.offline = true;
-        }
+        this.offline = (this.location != null) && (!this.location.trim().isEmpty());
     }
 
     @Override
