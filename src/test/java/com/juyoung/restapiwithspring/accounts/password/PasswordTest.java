@@ -1,4 +1,4 @@
-package com.juyoung.restapiwithspring.accounts;
+package com.juyoung.restapiwithspring.accounts.password;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static com.juyoung.restapiwithspring.accounts.Password.MIN_LENGTH;
+import static com.juyoung.restapiwithspring.accounts.password.Password.MIN_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 

@@ -1,5 +1,6 @@
 package com.juyoung.restapiwithspring.accounts;
 
+import com.juyoung.restapiwithspring.accounts.password.Password;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 

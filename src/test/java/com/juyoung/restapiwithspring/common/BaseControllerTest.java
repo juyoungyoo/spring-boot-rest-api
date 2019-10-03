@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juyoung.restapiwithspring.accounts.Account;
 import com.juyoung.restapiwithspring.accounts.AccountService;
 import com.juyoung.restapiwithspring.accounts.RoleType;
-import com.juyoung.restapiwithspring.accounts.Password;
+import com.juyoung.restapiwithspring.accounts.password.Password;
 import com.juyoung.restapiwithspring.configs.AppSecurityProperties;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.BeforeEach;

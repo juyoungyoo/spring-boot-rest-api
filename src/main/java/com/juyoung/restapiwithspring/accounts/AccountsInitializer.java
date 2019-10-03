@@ -1,5 +1,6 @@
 package com.juyoung.restapiwithspring.accounts;
 
+import com.juyoung.restapiwithspring.accounts.password.Password;
 import com.juyoung.restapiwithspring.configs.AppSecurityProperties;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

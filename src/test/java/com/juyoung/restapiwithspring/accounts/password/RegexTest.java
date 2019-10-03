@@ -1,4 +1,4 @@
-package com.juyoung.restapiwithspring.accounts;
+package com.juyoung.restapiwithspring.accounts.password;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -6,7 +6,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.regex.Pattern;
 
-import static com.juyoung.restapiwithspring.accounts.Password.REGEX_OF_PASSWORD;
+import static com.juyoung.restapiwithspring.accounts.password.Password.REGEX_OF_PASSWORD;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class RegexTest {

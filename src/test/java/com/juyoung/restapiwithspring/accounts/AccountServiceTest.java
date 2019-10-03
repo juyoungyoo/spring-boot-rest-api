@@ -1,5 +1,6 @@
 package com.juyoung.restapiwithspring.accounts;
 
+import com.juyoung.restapiwithspring.accounts.password.Password;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

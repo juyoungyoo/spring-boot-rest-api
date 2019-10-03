@@ -1,4 +1,4 @@
-package com.juyoung.restapiwithspring.accounts;
+package com.juyoung.restapiwithspring.accounts.password;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import javax.persistence.Embeddable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import static com.juyoung.restapiwithspring.accounts.WrongPasswordException.ERROR_MESSAGE_OF_CONDITION;
+import static com.juyoung.restapiwithspring.accounts.password.WrongPasswordException.ERROR_MESSAGE_OF_CONDITION;
 
 @Getter
 @Embeddable
@@ -45,15 +45,15 @@ public class Password {
         }
     }
 
-    void encode(PasswordEncoder passwordEncoder) {
+    public void encode(PasswordEncoder passwordEncoder) {
         this.value = passwordEncoder.encode(value);
     }
 
-    boolean isMatched(final Password target, PasswordEncoder passwordEncoder) {
+    public boolean isMatched(final Password target, PasswordEncoder passwordEncoder) {
         return passwordEncoder.matches(target.value, this.value);
     }
 
-    String getValue() {
+    public String getValue() {
         return value;
     }
 

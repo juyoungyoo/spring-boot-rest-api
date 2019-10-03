@@ -1,4 +1,4 @@
-package com.juyoung.restapiwithspring.global.converter;
+package com.juyoung.restapiwithspring.global;
 
 public interface Converter<T, R> {
 

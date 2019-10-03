@@ -1,9 +1,9 @@
-package com.juyoung.restapiwithspring.accounts;
+package com.juyoung.restapiwithspring.accounts.password;
 
 import com.juyoung.restapiwithspring.error.ErrorCode;
 import com.juyoung.restapiwithspring.error.PlatformException;
 
-import static com.juyoung.restapiwithspring.accounts.Password.MIN_LENGTH;
+import static com.juyoung.restapiwithspring.accounts.password.Password.MIN_LENGTH;
 
 class WrongPasswordException extends PlatformException {
 
