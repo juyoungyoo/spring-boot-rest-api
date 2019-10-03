@@ -1,6 +1,6 @@
 package com.juyoung.restapiwithspring.events;
 
-import com.juyoung.restapiwithspring.global.converter.Converter;
+import com.juyoung.restapiwithspring.global.Converter;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,10 +12,8 @@ public class EventConverter implements Converter<Event, EventResponse> {
                 .id(event.getId())
                 .name(event.getName())
                 .description(event.getDescription())
-                .beginEnrollmentDateTime(event.getBeginEnrollmentDateTime())
-                .closeEnrollmentDateTime(event.getCloseEnrollmentDateTime())
-                .beginEventDateTime(event.getBeginEventDateTime())
-                .endEventDateTime(event.getEndEventDateTime())
+                .enrollmentDate(event.getEnrollmentDate())
+                .eventDate(event.getEventDate())
                 .limitOfEnrollment(event.getLimitOfEnrollment())
                 .location(event.getLocation())
                 .offline(event.isOffline())
@@ -26,4 +24,5 @@ public class EventConverter implements Converter<Event, EventResponse> {
                 .eventStatus(event.getEventStatus())
                 .build();
     }
+
 }

@@ -3,6 +3,7 @@ package com.juyoung.restapiwithspring.events;
 import com.juyoung.restapiwithspring.accounts.AccountRepository;
 import com.juyoung.restapiwithspring.common.BaseControllerTest;
 import com.juyoung.restapiwithspring.error.ErrorCode;
+import com.juyoung.restapiwithspring.events.period.Period;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,10 +45,10 @@ class EventControllerTest extends BaseControllerTest {
         fixtureOfEvent = EventCreateUpdateDto.builder()
                 .name("Spring seminal")
                 .description("REST API Development with Spring")
-                .beginEnrollmentDateTime(LocalDateTime.of(2019, 9, 20, 0, 0))
-                .closeEnrollmentDateTime(LocalDateTime.of(2019, 9, 30, 0, 0))
-                .beginEventDateTime(LocalDateTime.of(2019, 10, 1, 23, 57))
-                .endEventDateTime(LocalDateTime.of(2019, 10, 3, 23, 57))
+                .enrollmentDate(Period.of(LocalDateTime.of(2019, 9, 20, 0, 0),
+                        LocalDateTime.of(2019, 9, 30, 0, 0)))
+                .eventDate(Period.of(LocalDateTime.of(2019, 10, 1, 23, 57),
+                        LocalDateTime.of(2019, 10, 3, 23, 57)))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
@@ -130,10 +131,8 @@ class EventControllerTest extends BaseControllerTest {
         EventCreateUpdateDto newEventDto = EventCreateUpdateDto.builder()
                 .name(expectedName)
                 .description(origin.getDescription())
-                .beginEnrollmentDateTime(origin.getBeginEnrollmentDateTime())
-                .closeEnrollmentDateTime(origin.getCloseEnrollmentDateTime())
-                .beginEventDateTime(origin.getEndEventDateTime())
-                .endEventDateTime(origin.getEndEventDateTime())
+                .enrollmentDate(origin.getEnrollmentDate())
+                .eventDate(origin.getEventDate())
                 .build();
 
         putResource(newEventDto, EVENT_URL_WITH_ID, origin.getId())
@@ -246,10 +245,10 @@ class EventControllerTest extends BaseControllerTest {
         EventCreateUpdateDto build = EventCreateUpdateDto.builder()
                 .name("Spring seminal" + count)
                 .description("REST API Development with Spring")
-                .beginEnrollmentDateTime(LocalDateTime.of(2019, 9, 20, 0, 0))
-                .closeEnrollmentDateTime(LocalDateTime.of(2019, 9, 30, 0, 0))
-                .beginEventDateTime(LocalDateTime.of(2019, 10, 1, 23, 57))
-                .endEventDateTime(LocalDateTime.of(2019, 10, 3, 23, 57))
+                .enrollmentDate(Period.of(LocalDateTime.of(2019, 9, 20, 0, 0),
+                        LocalDateTime.of(2019, 9, 30, 0, 0)))
+                .eventDate(Period.of(LocalDateTime.of(2019, 10, 1, 23, 57),
+                        LocalDateTime.of(2019, 10, 3, 23, 57)))
                 .build();
 
         return eventRepository.save(build.toEntity());
@@ -268,10 +267,10 @@ class EventControllerTest extends BaseControllerTest {
         return requestFields(
                 fieldWithPath("name").description("name of new event"),
                 fieldWithPath("description").description("description of new event"),
-                fieldWithPath("beginEnrollmentDateTime").description("date time of begin of new event"),
-                fieldWithPath("closeEnrollmentDateTime").description("date time of close of new event"),
-                fieldWithPath("beginEventDateTime").description("date time of begin of new event"),
-                fieldWithPath("endEventDateTime").description("date time of close of new event"),
+                fieldWithPath("enrollmentDate.startDate").description("date time of begin of new event"),
+                fieldWithPath("enrollmentDate.endDate").description("date time of close of new event"),
+                fieldWithPath("eventDate.startDate").description("date time of begin of new event"),
+                fieldWithPath("eventDate.endDate").description("date time of close of new event"),
                 fieldWithPath("location").description("location of new event"),
                 fieldWithPath("basePrice").description("base price of new event"),
                 fieldWithPath("maxPrice").description("max price of new event"),
@@ -284,10 +283,10 @@ class EventControllerTest extends BaseControllerTest {
                 fieldWithPath("id").description("identifier of new event"),
                 fieldWithPath("name").description("name of new event"),
                 fieldWithPath("description").description("description of new event"),
-                fieldWithPath("beginEnrollmentDateTime").description("date time of begin of new event"),
-                fieldWithPath("closeEnrollmentDateTime").description("date time of close of new event"),
-                fieldWithPath("beginEventDateTime").description("date time of begin of new event"),
-                fieldWithPath("endEventDateTime").description("date time of close of new event"),
+                fieldWithPath("enrollmentDate.startDate").description("date time of begin of new event"),
+                fieldWithPath("enrollmentDate.endDate").description("date time of close of new event"),
+                fieldWithPath("eventDate.startDate").description("date time of begin of new event"),
+                fieldWithPath("eventDate.endDate").description("date time of close of new event"),
                 fieldWithPath("location").description("location of new event"),
                 fieldWithPath("basePrice").description("base price of new event"),
                 fieldWithPath("maxPrice").description("max price of new event"),

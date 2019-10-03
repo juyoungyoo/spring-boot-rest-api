@@ -1,11 +1,11 @@
 package com.juyoung.restapiwithspring.events;
 
+import com.juyoung.restapiwithspring.events.period.Period;
 import lombok.*;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -21,21 +21,15 @@ class EventCreateUpdateDto {
     private String description;
 
     @NotNull
-    private LocalDateTime beginEnrollmentDateTime;
+    private Period enrollmentDate;
 
     @NotNull
-    private LocalDateTime closeEnrollmentDateTime;
+    private Period eventDate;
 
-    @NotNull
-    private LocalDateTime beginEventDateTime;
-
-    @NotNull
-    private LocalDateTime endEventDateTime;
-
-    private String location; // (optional) 이게 없으면 온라인 모임
+    private String location;
 
     @Min(0)
-    private int basePrice; // (optional)
+    private int basePrice;
 
     @Min(0)
     private int maxPrice;
@@ -47,10 +41,8 @@ class EventCreateUpdateDto {
         return Event.builder()
                 .name(name)
                 .description(description)
-                .beginEnrollmentDateTime(beginEnrollmentDateTime)
-                .closeEnrollmentDateTime(closeEnrollmentDateTime)
-                .beginEventDateTime(beginEventDateTime)
-                .endEventDateTime(endEventDateTime)
+                .enrollmentDate(enrollmentDate)
+                .eventDate(eventDate)
                 .location(location)
                 .basePrice(basePrice)
                 .maxPrice(maxPrice)

@@ -3,6 +3,7 @@ package com.juyoung.restapiwithspring.events;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.juyoung.restapiwithspring.accounts.Account;
 import com.juyoung.restapiwithspring.accounts.AccountSerializer;
+import com.juyoung.restapiwithspring.events.period.Period;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"id", "name"})
+@ToString
 class Event {
 
     @Id
@@ -30,13 +32,17 @@ class Event {
     @Column(length = 200)
     private String description;
 
-    private LocalDateTime beginEnrollmentDateTime;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "startDate", column = @Column(name = "begin_enrollment_date")),
+            @AttributeOverride(name = "endDate", column = @Column(name = "close_enrollment_date"))
+    })
+    private Period enrollmentDate;
 
-    private LocalDateTime closeEnrollmentDateTime;
-
-    private LocalDateTime beginEventDateTime;
-
-    private LocalDateTime endEventDateTime;
+    @Embedded
+    @AttributeOverride(name = "startDate", column = @Column(name = "begin_event_date"))
+    @AttributeOverride(name = "endDate", column = @Column(name = "close_event_date"))
+    private Period eventDate;
 
     private int limitOfEnrollment;
 
@@ -51,10 +57,10 @@ class Event {
     private boolean free;
 
     @CreatedDate
-    private LocalDateTime createdDateTime;
+    private LocalDateTime createdDate;
 
     @LastModifiedDate
-    private LocalDateTime lastModifiedDateTime;
+    private LocalDateTime lastModifiedDate;
 
     @ManyToOne
     @JsonSerialize(using = AccountSerializer.class)
@@ -76,10 +82,8 @@ class Event {
     void update(Event event) {
         this.name = event.name;
         this.description = event.description;
-        this.beginEnrollmentDateTime = event.beginEnrollmentDateTime;
-        this.closeEnrollmentDateTime = event.closeEnrollmentDateTime;
-        this.beginEventDateTime = event.closeEnrollmentDateTime;
-        this.endEventDateTime = event.endEventDateTime;
+        this.enrollmentDate = event.enrollmentDate;
+        this.eventDate = event.eventDate;
         this.location = event.location;
         this.basePrice = event.basePrice;
         this.maxPrice = event.maxPrice;
@@ -92,28 +96,5 @@ class Event {
         this.free = (this.basePrice <= 0) && (this.maxPrice <= 0);
 
         this.offline = (this.location != null) && (!this.location.trim().isEmpty());
-    }
-
-    @Override
-    public String toString() {
-        return "Event{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", beginEnrollmentDateTime=" + beginEnrollmentDateTime +
-                ", closeEnrollmentDateTime=" + closeEnrollmentDateTime +
-                ", beginEventDateTime=" + beginEventDateTime +
-                ", endEventDateTime=" + endEventDateTime +
-                ", limitOfEnrollment=" + limitOfEnrollment +
-                ", location='" + location + '\'' +
-                ", offline=" + offline +
-                ", basePrice=" + basePrice +
-                ", maxPrice=" + maxPrice +
-                ", free=" + free +
-                ", createdDateTime=" + createdDateTime +
-                ", lastModifiedDateTime=" + lastModifiedDateTime +
-                ", manager=" + manager +
-                ", eventStatus=" + eventStatus +
-                '}';
     }
 }

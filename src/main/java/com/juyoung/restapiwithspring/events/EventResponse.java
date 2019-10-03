@@ -2,9 +2,8 @@ package com.juyoung.restapiwithspring.events;
 
 
 import com.juyoung.restapiwithspring.accounts.Account;
+import com.juyoung.restapiwithspring.events.period.Period;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -18,13 +17,9 @@ class EventResponse {
 
     private String description;
 
-    private LocalDateTime beginEnrollmentDateTime;
+    private Period enrollmentDate;
 
-    private LocalDateTime closeEnrollmentDateTime;
-
-    private LocalDateTime beginEventDateTime;
-
-    private LocalDateTime endEventDateTime;
+    private Period eventDate;
 
     private int limitOfEnrollment;
 
