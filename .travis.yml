@@ -14,11 +14,14 @@ cache:
 
 script: "./gradlew clean build"
 
-notifications:
-  webhooks: https://fathomless-fjord-24024.herokuapp.com/notify
+before_deploy:
+- zip -r rest-api-with-spring *
+- mkdir -p deploy
+- mv rest-api-with-spring.zip deploy/rest-api-with-spring.zip
 
 deploy:
 - provider: s3
+  local_dir: deploy
   access_key_id: $AWS_ACCESS_KEY
   secret_access_key: $AWS_SECRET_KEY
   bucket: springboot-webservice-deploy-final
@@ -29,3 +32,6 @@ deploy:
   on:
     repo: juyoungyoo/spring-boot-rest-api
     branch: master
+
+notifications:
+  webhooks: https://fathomless-fjord-24024.herokuapp.com/notify

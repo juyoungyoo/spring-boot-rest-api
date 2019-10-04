@@ -1,5 +1,15 @@
 # Event REST API [![Build Status](https://travis-ci.org/juyoungyoo/spring-boot-rest-api.svg?branch=master)](https://travis-ci.org/juyoungyoo/spring-boot-rest-api)
 
+![asciidoc-example](./asserts/asciidoc-example.png)
+
+![asciidoc-example-2](./asserts/asciidoc-example-2.png)
+
+> [그런 REST API로 괜찮은가?](https://tv.naver.com/v/2292653)를 보고 RESTful API에 관심을 갖게되어 시작한
+프로젝트입니다. 
+현 프로젝트는 Self-descriptive 
+
+
+
 ### 개발환경
 - JDK 1.8
 - SpringBoot 2.1.3.RELEASE
@@ -20,9 +30,9 @@
 
 ### 목표
 - Spring Security OAuth2으로 인증 처리
-- Self-Describtive Message, HATEOAS 만족하는 REST API 개발
+- Self-Descriptive Message, HATEOAS 만족하는 REST API 개발
 - 성능 확인을 위해 모든 요청에 대하여 응답까지 걸리는 시간을 log 로 기록
-fs
+
 ### DB modeling
 // todo 
 ![DB modeling](./asserts/DB_ERD.png)
@@ -33,11 +43,12 @@ fs
 +-- configs
 +-- index
 +-- accounts
+    +-- password
 +-- events
+    +-- period  
 +-- error
 +-- global
     +-- converter
-
 ```
   
 ----
@@ -58,8 +69,3 @@ fs
 
 #### 테스트 커버리지
 ![test coverage](./asserts/coverage.png)
-
-#### 샘플 
-![asciidoc-example](./asserts/asciidoc-example.png)
-
-![asciidoc-example-2](./asserts/asciidoc-example-2.png)
